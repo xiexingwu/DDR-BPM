@@ -1,0 +1,21 @@
+{
+  "images" : [
+    {
+      "filename" : "Marisa wa taihen na mono wo nusunde ikimashita-jacket.png",
+      "idiom" : "universal",
+      "scale" : "1x"
+    },
+    {
+      "idiom" : "universal",
+      "scale" : "2x"
+    },
+    {
+      "idiom" : "universal",
+      "scale" : "3x"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}
