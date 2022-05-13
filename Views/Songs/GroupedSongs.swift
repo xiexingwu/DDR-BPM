@@ -27,20 +27,11 @@ struct SongGroupView : View{
     
     var body: some View {
         if !viewModel.searchText.isEmpty || viewModel.userSort == .none {
+            Text("\(songGroup.songs!.count) songs")
             GroupView(songGroup: songGroup)
-//            ForEach(songGroup.songs!) {song in
-//                let i = getSongIndexByID(songID: song.id, songs: modelData.songs)
-//                let songObj = modelData.songs[i]
-//                NavigableSongRow(song: songObj)
-//            }
         } else {
             DisclosureGroup (isExpanded: $isExpanded) {
                 GroupView(songGroup: songGroup)
-//                ForEach(songGroup.songs!) {song in
-//                    let i = getSongIndexByID(songID: song.id, songs: modelData.songs)
-//                    let songObj = modelData.songs[i]
-//                    NavigableSongRow(song: songObj)
-//                }
             } label:{
                 header(songGroup)
             }
@@ -59,8 +50,9 @@ struct SongGroupView : View{
         case .version:
             fallthrough
         case .none:
-            view = view + Text("\(songGroup.name) ")
+            view = view + Text("\(songGroup.name)")
         }
+        view = view + Text(": \(songGroup.songs!.count) songs").font(.caption).foregroundColor(.gray)
         return view
     }
     
@@ -86,7 +78,6 @@ struct GroupedSongs: View {
                     ))
                 }
             }
-//            .id(UUID())
             .listStyle(.plain)
         }
     }

@@ -17,9 +17,14 @@ import SwiftUI
 private func filterSongsByName(_ songs : [Song], _ text : String) -> [Song] {
     if text.isEmpty {return songs}
 
-    return songs.filter { song in
+    let filt = songs.filter { song in
         (song.title.lowercased().contains(text.lowercased()) || song.titletranslit.lowercased().contains(text.lowercased()))
     }
+    print("---------")
+    for song in filt {
+        print(song.title)
+    }
+    return filt
 }
 
 struct SongList: View {
@@ -44,13 +49,13 @@ struct SongList: View {
         filt = filt.filter { song in
             songHasLevelBetween(song, min: viewModel.filterMinLevel, max: viewModel.filterMaxLevel)
         }
+        
         return filt
     }
     
     private func groupSongs() -> [SongGroup] {
         if !viewModel.searchText.isEmpty {
             return groupSongsByNone(filterSongsByName(filteredSongs, viewModel.searchText))
-
         }
         
         switch viewModel.userSort {
@@ -67,7 +72,7 @@ struct SongList: View {
     
     private func groupSongsByLevel(_ songs: [Song]) -> [SongGroup] {
         var groups : [SongGroup] = []
-        for level in 1 ... 19 {
+        for level in (1 ... 19).reversed() {
             let group = SongGroup(
                 sortType: .level,
                 name: level.formatted(),
@@ -225,15 +230,13 @@ struct NavigableSongList: View {
         NavigationView{
             SongList()
         }
+//        .searchable(text: $viewModel.searchText, placement: .navigationBarDrawer(displayMode: .always)) {
         .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always)) {
             ForEach(filterSongsByName(modelData.songs, searchText)) { song in
-//                SongRow(song: song)
                 Text(song.title)
                     .searchCompletion(song.titletranslit.lowercased())
                     .searchCompletion(song.title.lowercased())
             }
-            EmptyView()
-            
         }
         .keyboardType(.default)
         .disableAutocorrection(true)

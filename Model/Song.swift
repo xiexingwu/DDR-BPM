@@ -112,40 +112,6 @@ func songHasLevelBetween(_ song: Song, min: Int=1, max: Int=19, sd: SDType = .si
     }
 }
 
-//func splitSong(_ song: Song, sd: SDType = .single) -> [Song] {
-//    var songs : [Song] = []
-//    let nSingles = song.levels.single.count
-//    let nDoubles = song.levels.double.count
-//    let levels = sd == .single ? song.levels.single : song.levels.double
-//    ForEach(levels, id:\.self){ level in
-//        print(level)
-////        songs.append(Song(
-////            title: song.title,
-////            titletranslit: song.titletranslit,
-////            version: song.version,
-////            songLength: song.songLength,
-////            perChart: false,
-////
-////            resources: song.resources,
-////            levels: Levels(
-////                single: sd == .single ? Difficulty(
-////            )
-////        ))
-//    }
-//    if chart.count == 0 {
-//
-//    }
-//}
-
-//func trimSongGroups(_ songGroups: [SongGroup]) -> [SongGroup] {
-//    var new : [SongGroup] = []
-//    for songGroup in songGroups {
-//        if songGroup.songs != nil && songGroup.songs!.count > 0{
-//            new.append(songGroup)
-//        }
-//    }
-//    return new
-//}
 
 struct SongGroup: Identifiable {//, ObservableObject {
     var sortType: SortType = .level
@@ -223,6 +189,7 @@ struct Levels: Hashable, Codable{
 
 struct Chart: Hashable, Codable{
     var bpmRange: String
+    var dominantBpm: Int
     var bpms: [BPM]
     var stops: [STOP]
     

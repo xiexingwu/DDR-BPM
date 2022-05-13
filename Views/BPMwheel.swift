@@ -85,7 +85,6 @@ struct BPMwheel: View {
             }
         }
         .onAppear { speedMod = closestSpeedMod(viewModel.userReadSpeed) }
-        
     }
 }
 

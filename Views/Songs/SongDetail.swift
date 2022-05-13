@@ -130,13 +130,22 @@ struct SongDetail: View {
                     if chart.stops.count > 0 {
                         Divider()
                         Text("STOPS")
+                        HStack{
+                            Text("Start (s)")
+                                .frame(maxWidth: .infinity)
+                            Text("Duration (s)")
+                                .frame(maxWidth: .infinity)
+                            Text("Beats @\(chart.dominantBpm)")
+                                .frame(maxWidth: .infinity)
+                        }
+                        
                         ForEach(chart.stops, id:\.self){ stop in
                             HStack{
                                 Text(String(format: "%.2f", stop.st))
                                     .frame(maxWidth: .infinity)
-                                Text(String(format: "%.2f", stop.dur)+" sec")
+                                Text(String(format: "%.2f", stop.dur))
                                     .frame(maxWidth: .infinity)
-                                Text(String(format: "%.2f", stop.beats) + " beats")
+                                Text(String(format: "%.2f", stop.beats))
                                     .frame(maxWidth: .infinity)
                             }
                         }

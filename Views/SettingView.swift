@@ -8,16 +8,26 @@
 import SwiftUI
 
 struct SettingView: View {
+    enum FocusField: Hashable {
+      case readSpeedField
+    }
+
     @EnvironmentObject var favorites: Favorites
     @EnvironmentObject var viewModel: ViewModel
     @State private var showingClearFavConfirmation : Bool = false
-    @State private var tempReadSpeed : Int = 600
-    
+    @State private var tempReadSpeed : Int?
+    @FocusState private var focusedField : FocusField?
+
     @State private var alertInvalidReadSpeed : Bool = false
     @State private var alertValidReadSpeed : Bool = false
     
+    
     private func validInput() -> Bool {
-        true
+        if tempReadSpeed != nil{
+            return tempReadSpeed! > 0
+        } else {
+            return false
+        }
     }
     
     var body: some View {
@@ -33,22 +43,29 @@ struct SettingView: View {
                               value: $tempReadSpeed,
                               format: .number
                     )
+                    .focused($focusedField, equals: .readSpeedField)
+                    .frame(maxWidth: .infinity)
                     
                     Button{
                         if validInput() {
+                            viewModel.userReadSpeed = tempReadSpeed!
+                            focusedField = nil
                             alertValidReadSpeed = true
-                            viewModel.userReadSpeed = tempReadSpeed
                         } else {
                             alertInvalidReadSpeed = true
                         }
                     } label: {
                         Text(" Set ")
+                            .foregroundColor(.blue)
                     }
-                    .alert("Invalid read speed \(tempReadSpeed)", isPresented: $alertInvalidReadSpeed){
-                        Button("OK", role: .cancel) {}
+                    .buttonStyle(.plain)
+                    .alert("Invalid read speed.", isPresented: $alertInvalidReadSpeed){
+                        Button("OK", role: .cancel) {
+                            focusedField = .readSpeedField
+                        }
                     }
-                    .alert("Read speed set to \(tempReadSpeed)", isPresented: $alertValidReadSpeed){
-                        Button("OK", role: .cancel) {}
+                    .alert("Read speed set to \(tempReadSpeed ?? 0).", isPresented: $alertValidReadSpeed){
+                        Button("OK", role: .cancel) {tempReadSpeed = nil; }
                     }
                 }
                 
@@ -68,12 +85,9 @@ struct SettingView: View {
                     }
                 }
             }
-//            .listStyle(.automatic)
             .navigationBarTitle("Settings")
         }
-//        .onTapGesture {
-//            UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to:nil, from:nil, for:nil)
-//        }
+
         
     }
 }
