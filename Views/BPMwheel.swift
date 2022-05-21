@@ -11,7 +11,8 @@ import Combine
 
 
 struct BPMwheel: View {
-    var bpmRange = "200"
+    var bpmRange : String = "200"
+    var dominantBPM : Int? = nil
     
     @EnvironmentObject var viewModel : ViewModel
 
@@ -34,13 +35,32 @@ struct BPMwheel: View {
     
     var wheelHeight : CGFloat = 80
 
-    var bpms : [Int] {
+    private var bpms : [Int] {
         getMinMaxBPM(bpmRange)
     }
     
+    private var wheelMid : (String, Int) {
+        if isVariableBPMRange(bpmRange: bpmRange){
+            let dom = dominantBPM ?? bpms[0]
+            if dom != bpms[0] && dom != bpms[1]{
+                return ("Mostly", dom)
+            } else {
+                return ("Min", bpms[0])
+            }
+        } else {
+            return ("BPM", bpms[0])
+        }
+    }
+    private var wheelRight : (String, Int?) {
+        if isVariableBPMRange(bpmRange: bpmRange){
+            return ("Max", bpms[1])
+        } else {
+            return ("", nil)
+        }
+    }
 
     func closestSpeedMod (_ target: Int) -> Double {
-        let speeds = BPMwheel.speedMods.map { Int($0 * Double(bpms.last ?? 200)) }
+        let speeds = BPMwheel.speedMods.map { Int($0 * Double(wheelMid.1)) }
         let closest = speeds.enumerated().min( by: {abs($0.1 - target) < abs($1.1 - target)} )!
         return BPMwheel.speedMods[closest.offset]
     }
@@ -48,41 +68,24 @@ struct BPMwheel: View {
     var body: some View {
   
         VStack{
-            if isVariableBPMRange(bpmRange: bpmRange){
+            
                 BPMrow(left: "Mod",
-                       mid: "Min",
-                       right: "Max")
+                       mid: wheelMid.0,
+                       right: wheelRight.0)
                 .frame(maxHeight:30)
                 .clipped()
                 
                 Picker("Speed mod", selection: $speedMod){
                     ForEach(BPMwheel.speedMods, id:\.self){ speedMod in
                         BPMrow(left: fmtSpeedMod(speedMod:speedMod),
-                               mid: fmtSpeed(speed:speedMod*Double(bpms[0])),
-                               right: fmtSpeed(speed:speedMod*Double(bpms[1])))
+                               mid: fmtSpeed(speed:speedMod*Double(wheelMid.1)),
+                               right: wheelRight.1 == nil ? "" : fmtSpeed(speed:speedMod*Double(wheelRight.1!)))
                     }
                 }
                 .pickerStyle(.wheel)
                 .frame(maxHeight: wheelHeight)
                 .clipped()
-            }else{
-                BPMrow(left: "Mod",
-                       mid: "BPM",
-                       right: "")
-                .frame(maxHeight:30)
-                .clipped()
 
-                Picker("Speed mod", selection: $speedMod){
-                    ForEach(BPMwheel.speedMods, id:\.self){ speedMod in
-                        BPMrow(left: fmtSpeedMod(speedMod:speedMod),
-                               mid: fmtSpeed(speed:speedMod*Double(bpms[0])),
-                               right: "")
-                    }
-                }
-                .pickerStyle(.wheel)
-                .frame(maxHeight:wheelHeight)
-                .clipped()
-            }
         }
         .onAppear { speedMod = closestSpeedMod(viewModel.userReadSpeed) }
     }
@@ -119,6 +122,12 @@ struct BPMSheet: View{
                 .keyboardType(.decimalPad)
                 .multilineTextAlignment(.center)
                 .frame(maxWidth: 250)
+                .onTapGesture {
+                    bpmRange = ""
+                }
+                .onSubmit {
+                    bpmInputFocused = false
+                }
             
             Spacer()
             
@@ -130,9 +139,9 @@ struct BPMSheet: View{
             bpmInputFocused = false
 //            UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to:nil, from:nil, for:nil)
         }
-        .onAppear { DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            bpmInputFocused = true }
-        }
+//        .onAppear { DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+//            bpmInputFocused = true }
+//        }
     }
 }
 
@@ -170,6 +179,7 @@ struct BPMwheel_Previews: PreviewProvider {
         Group{
             BPMwheel(bpmRange:"200")
             BPMwheel(bpmRange:"100~400")
+            BPMwheel(bpmRange:"100~800", dominantBPM: 400)
             BPMSheet()
         }
         .environmentObject(modelData)

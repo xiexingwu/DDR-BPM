@@ -20,10 +20,10 @@ private func filterSongsByName(_ songs : [Song], _ text : String) -> [Song] {
     let filt = songs.filter { song in
         (song.title.lowercased().contains(text.lowercased()) || song.titletranslit.lowercased().contains(text.lowercased()))
     }
-    print("---------")
-    for song in filt {
-        print(song.title)
-    }
+//    print("---------")
+//    for song in filt {
+//        print(song.title)
+//    }
     return filt
 }
 

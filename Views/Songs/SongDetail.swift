@@ -103,7 +103,7 @@ struct SongDetail: View {
                 VStack{
                     Text("BPM: \(chart.bpmRange)")
 
-                    BPMwheel(bpmRange : song.chart[chartID].bpmRange)
+                    BPMwheel(bpmRange : song.chart[chartID].bpmRange, dominantBPM: song.chart[chartID].dominantBpm)
                 }.padding([.top, .bottom], 50)
 
 
