@@ -22,10 +22,7 @@ extension UINavigationBar {
     }
 }
 
-struct ContentView: View {
-    @State private var showingMenu = false
-    @State private var markingFavorites = false
-
+struct SongView: View {
 //    init() {
 //            UINavigationBar.changeAppearance(clear: true)
 //        }
@@ -34,12 +31,12 @@ struct ContentView: View {
     }
 }
 
-struct ContentView_Previews: PreviewProvider {
+struct SongView_Previews: PreviewProvider {
     static let favorites = Favorites()
     static let viewModel = ViewModel()
     static let modelData = ModelData()
     static var previews: some View {
-        ContentView()
+        SongView()
             .environmentObject(modelData)
             .environmentObject(favorites)
             .environmentObject(viewModel)

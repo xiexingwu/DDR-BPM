@@ -7,19 +7,19 @@
 
 import SwiftUI
 
-struct GroupView : View {
+private struct SongsInGroup : View {
     @EnvironmentObject var modelData: ModelData
     var songGroup: SongGroup
     var body: some View{
         ForEach(songGroup.songs!) {song in
-            let i = getSongIndexByID(songID: song.id, songs: modelData.songs)
+            let i = getSongIndexByID(song.id, modelData.songs)
             let songObj = modelData.songs[i]
             NavigableSongRow(song: songObj)
         }
     }
 }
 
-struct SongGroupView : View{
+private struct GroupedSongs : View{
     @EnvironmentObject var viewModel: ViewModel
 
     var songGroup: SongGroup
@@ -28,10 +28,10 @@ struct SongGroupView : View{
     var body: some View {
         if !viewModel.searchText.isEmpty || viewModel.userSort == .none {
             Text("\(songGroup.songs!.count) songs")
-            GroupView(songGroup: songGroup)
+            SongsInGroup(songGroup: songGroup)
         } else {
             DisclosureGroup (isExpanded: $isExpanded) {
-                GroupView(songGroup: songGroup)
+                SongsInGroup(songGroup: songGroup)
             } label:{
                 header(songGroup)
             }
@@ -59,7 +59,7 @@ struct SongGroupView : View{
 }
 
 /* Grouped songs view */
-struct GroupedSongs: View {
+struct GroupedSongView: View {
     @EnvironmentObject var modelData: ModelData
     @EnvironmentObject var viewModel: ViewModel
 
@@ -72,7 +72,7 @@ struct GroupedSongs: View {
             List{
                 ForEach(0 ... songGroups.count - 1, id:\.self) { i in
                     let songGroup = songGroups[i]
-                    SongGroupView(songGroup: songGroup, isExpanded: Binding(
+                    GroupedSongs(songGroup: songGroup, isExpanded: Binding(
                         get: { return selectedGroup == i },
                         set: { _ in return selectedGroup = selectedGroup == i ? -1 : i }
                     ))

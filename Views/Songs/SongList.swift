@@ -32,7 +32,6 @@ struct SongList: View {
     @EnvironmentObject var favorites: Favorites
     @EnvironmentObject var viewModel: ViewModel
     
-    @State private var showingBPMsheet : Bool = true
     @Environment(\.isSearching) var isSearching
 
     var filteredSongs : [Song] {
@@ -78,7 +77,7 @@ struct SongList: View {
                 name: level.formatted(),
                 songs: songs
                     .filter{ songHasLevel($0, level: level) }
-                    .map{SongGroup.fromSong($0, sortType: .version)}
+                    .map{SongGroup.fromSong($0, sortType: .level)}
             )
             if group.songs!.count > 0 { groups.append(group) }
         }
@@ -107,7 +106,7 @@ struct SongList: View {
             sortType: .none,
             name: "All songs",
             songs: songs
-                .map{SongGroup.fromSong($0, sortType: .version)}
+                .map{SongGroup.fromSong($0, sortType: .none)}
         )
         if group.songs!.count > 0 { groups.append(group) }
         return groups
@@ -121,7 +120,7 @@ struct SongList: View {
                 name: String(char),
                 songs: songs
                     .filter{$0.titletranslit.first! == char}
-                    .map{SongGroup.fromSong($0, sortType: .version)}
+                    .map{SongGroup.fromSong($0, sortType: .name)}
             )
             if group.songs!.count > 0 { groups.append(group) }
         }
@@ -138,7 +137,7 @@ struct SongList: View {
         VStack{
             
             /* Song Grouping */
-            GroupedSongs(songGroups: groupSongs())
+            GroupedSongView(songGroups: groupSongs())
             
             /* Lower-screen filter */
             HStack{
@@ -170,7 +169,7 @@ struct SongList: View {
                 
             }
             
-            Text("Filters")
+//            Text("Filters")
         }
         .navigationBarTitle("Songs")
         .navigationBarTitleDisplayMode(.inline)
@@ -179,37 +178,18 @@ struct SongList: View {
             ToolbarItem(placement: .navigationBarTrailing){
                 Menu{
                     /* Mark favorites */
-                    Button{
-                        viewModel.markingFavorites.toggle()
-                    } label:{
-                        Label("Mark favs", systemImage: viewModel.markingFavorites ? "star.fill" : "star")
-                    }
+                    ToolbarMenuMarkFav()
                     
                     /* Single/Double */
-                    Picker(selection: $viewModel.userSD,
-                           label:Text("\(viewModel.userSD.rawValue)")){
-                        ForEach(SDType.allCases, id: \.self){ sd in
-                            Text(sd.rawValue)
-                        }
-                    }
-                           .pickerStyle(.menu)
+                    ToolbarMenuSD()
                     
                     /* Sort by */
-                    Picker(selection: $viewModel.userSort,
-                           label:Text("Sort: \(viewModel.userSort.rawValue)")){
-                        ForEach(SortType.allCases, id: \.self){ sort in
-                            Text(sort.rawValue)
-                        }
-                    }
-                           .pickerStyle(.menu)
-                    
+                    ToolbarMenuSort()
                     
                 } label:{
                     Label("Show Menu", systemImage: "line.3.horizontal")
-//                        .padding(15)
                 }
             }
-            
         }
         .onChange(of: isSearching) { newValue in
             if !newValue {

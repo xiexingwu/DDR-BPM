@@ -11,7 +11,7 @@ struct DifficultiesText: View{
     @EnvironmentObject var viewModel: ViewModel
     
     var song: Song
-
+    
     var body: some View {
         if let levels = viewModel.userSD == .single ? song.levels.single : song.levels.double {
             HStack{
@@ -21,23 +21,23 @@ struct DifficultiesText: View{
                 + Text(" . ") +
                 
                 Text("\(levels.easy?.formatted()      ?? "-")")
-                        .foregroundColor(difficultyColor(.basic))
+                    .foregroundColor(difficultyColor(.basic))
                 
                 + Text(" . ") +
                 
                 Text("\(levels.medium?.formatted()    ?? "-")")
-                            .foregroundColor(difficultyColor(.difficult))
+                    .foregroundColor(difficultyColor(.difficult))
                 
                 + Text(" . ") +
                 
                 Text("\(levels.hard?.formatted()      ?? "-")")
-                                .foregroundColor(difficultyColor(.expert))
+                    .foregroundColor(difficultyColor(.expert))
                 
                 + Text(" . ") +
                 
                 Text("\(levels.challenge?.formatted() ?? "-")")
-                                    .foregroundColor(difficultyColor(.challenge))
-
+                    .foregroundColor(difficultyColor(.challenge))
+                
             }
         } else {
             EmptyView()
@@ -45,10 +45,74 @@ struct DifficultiesText: View{
     }
 }
 
+
+struct SongRow: View {
+    @EnvironmentObject var modelData: ModelData
+    @EnvironmentObject var viewModel: ViewModel
+    
+    var song: Song
+    
+    var isMinimal: Bool = false
+    
+    private var id: Int {
+        modelData.songs.firstIndex(where: {$0.id == song.id })!
+    }
+    
+    private var bpmString : String {
+        let chartID = getChartIDFromUser(song, viewModel)
+        let chart = song.chart[chartID]
+        if isVariableBPMRange(chart.bpmRange){
+            return chart.bpmRange + "~" + String(chart.dominantBpm)
+        }else{
+            return chart.bpmRange
+        }
+    }
+    
+    var body: some View {
+        if isMinimal{
+            HStack{
+                Text(song.title)
+                Spacer()
+                Text(song.chart[0].bpmRange)
+                    .font(.caption)
+                    .foregroundColor(.gray)
+            }
+        }else{
+            ZStack(alignment:.topLeading){
+                HStack{
+                    song.jacket
+                        .resizable()
+                        .frame(width:50,height:50)
+                    
+                    VStack(alignment: .leading){
+                        Text(song.title)
+                        
+                        HStack{
+                            DifficultiesText(song:song)
+                            Spacer()
+                            Text(song.chart[0].bpmRange)
+                            //                            Text(song.version)
+                                .font(.caption)
+                                .foregroundColor(.gray)
+                        }
+                    }
+                    Spacer()
+                }
+                .padding(isMinimal ? 0 : 10)
+                
+                FavoriteButton(song: modelData.songs[id])
+                    .disabled(!viewModel.markingFavorites)
+                
+            }
+        }
+    }
+}
+
+
 struct NavigableSongRow: View {
-
+    
     @EnvironmentObject var viewModel : ViewModel
-
+    
     let song : Song
     
     var body: some View{
@@ -65,58 +129,16 @@ struct NavigableSongRow: View {
     }
 }
 
-struct SongRow: View {
-    @EnvironmentObject var modelData: ModelData
-    @EnvironmentObject var viewModel: ViewModel
-
-    var song: Song
-
-    private var id: Int {
-        modelData.songs.firstIndex(where: {$0.id == song.id })!
-    }
-
-    var body: some View {
-        ZStack(alignment:.topLeading){
-            HStack{
-                song.jacket
-                    .resizable()
-                    .frame(width:50,height:50)
-                
-                VStack(alignment: .leading){
-                    Text(song.title)
-                    
-                    HStack{
-                        DifficultiesText(song:song)
-                        Spacer()
-                        Text(song.version)
-                            .font(.caption)
-                            .foregroundColor(.gray)
-                    }
-                }
-                
-                Spacer()
-                
-
-            }
-            .padding()
-
-            FavoriteButton(song: modelData.songs[id])
-                .disabled(!viewModel.markingFavorites)
-        }
-
-    }
-}
-
 struct SongRow_Previews: PreviewProvider {
     static let favorites = Favorites()
     static let viewModel = ViewModel()
     static let modelData = ModelData()
-
+    
     static var songs = modelData.songs
     static var previews: some View {
         Group{
             SongRow(song: songs[293])
-            SongRow(song: songs[3])
+            SongRow(song: songs[7], isMinimal: true)
         }
         .environmentObject(modelData)
         .environmentObject(viewModel)

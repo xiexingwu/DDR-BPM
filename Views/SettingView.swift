@@ -12,9 +12,11 @@ struct SettingView: View {
       case readSpeedField
     }
 
+    @EnvironmentObject var modelData: ModelData
     @EnvironmentObject var favorites: Favorites
     @EnvironmentObject var viewModel: ViewModel
     @State private var showingClearFavConfirmation : Bool = false
+    @State private var showingClearCoursesConfirmation : Bool = false
     @State private var tempReadSpeed : Int?
     @FocusState private var focusedField : FocusField?
 
@@ -82,6 +84,22 @@ struct SettingView: View {
                 ){
                     Button("Yes", role: .destructive){
                         favorites.clear()
+                    }
+                }
+                
+                /* Clear custom courses */
+                Button(role: .destructive){
+                    showingClearCoursesConfirmation = true
+                } label:{
+                    Label("Clear custom courses", systemImage: "trash")
+                }
+                .confirmationDialog(
+                    "Confirm clearing custom courses?",
+                    isPresented: $showingClearCoursesConfirmation,
+                    titleVisibility: .visible
+                ){
+                    Button("Yes", role: .destructive){
+                        modelData.resetCourses()
                     }
                 }
             }

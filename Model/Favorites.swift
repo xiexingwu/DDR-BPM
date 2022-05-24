@@ -8,7 +8,7 @@
 import Foundation
 import SwiftUI
 
-class Favorites: ObservableObject {
+final class Favorites: ObservableObject {
     @Published var songs: Set<String> = []
     let defaults = UserDefaults.standard
     

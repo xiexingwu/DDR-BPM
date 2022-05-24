@@ -14,9 +14,13 @@ struct MainView: View {
                 .tabItem{
                     Label("BPM Wheel", systemImage: "123.rectangle")
                 }
-            ContentView()
+            SongView()
                 .tabItem{
                     Label("Songs", systemImage : "list.dash")
+                }
+            CourseView()
+                .tabItem{
+                    Label("Courses", systemImage : "folder")
                 }
             SettingView()
                 .tabItem {

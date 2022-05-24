@@ -28,11 +28,7 @@ struct SongDetail: View {
     }
     
     private var chartID: Int {
-        if (!song.perChart) {
-            return 0
-        }else{
-            return songDifficulties.firstIndex(where: { $0.difficulty == viewModel.userDiff })!
-        }
+        getChartIDFromUser(song, viewModel)
     }
     
     private var chart: Chart {

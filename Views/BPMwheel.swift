@@ -40,7 +40,7 @@ struct BPMwheel: View {
     }
     
     private var wheelMid : (String, Int) {
-        if isVariableBPMRange(bpmRange: bpmRange){
+        if isVariableBPMRange(bpmRange){
             let dom = dominantBPM ?? bpms[0]
             if dom != bpms[0] && dom != bpms[1]{
                 return ("Mostly", dom)
@@ -52,7 +52,7 @@ struct BPMwheel: View {
         }
     }
     private var wheelRight : (String, Int?) {
-        if isVariableBPMRange(bpmRange: bpmRange){
+        if isVariableBPMRange(bpmRange){
             return ("Max", bpms[1])
         } else {
             return ("", nil)

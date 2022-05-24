@@ -54,22 +54,44 @@ enum VersionType : String, Equatable, CaseIterable, Sortable {
     }
 }
 
-func getSongIndexByID(songID: String, songs: [Song]) -> Int {
+func getSongIndexByID(_ songID: String, _ songs: [Song]) -> Int {
     songs.firstIndex(where: {$0.id == songID })!
 }
+func getSongIndexByTitletranslit(_ title: String, _ songs: [Song]) -> Int {
+    songs.firstIndex(where: {
+        let src = cleanTitleSearch($0.titletranslit)
+        let tgt = cleanTitleSearch(title)
+//        print("searching \(tgt) in \(src)")
+        return tgt == src
+//        cleanTitleSearch($0.titletranslit) == cleanTitleSearch(title)
+    })!
+}
 
+private func cleanTitleSearch(_ txt : String) -> String{
+    txt.lowercased().filter { "0123456789abcdefghijklmnopqrstuvwxyz".contains($0) }
+}
+
+
+func getChartIDFromUser(_ song: Song, _ viewModel: ViewModel) -> Int {
+    if (!song.perChart) {
+        return 0
+    }else{
+        let songDifficulties = Difficulty.fromDifficultyLevels(song, sd: viewModel.userSD)
+        return songDifficulties.firstIndex(where: { $0.difficulty == viewModel.userDiff })!
+    }
+}
 //func getSongLevelByDifficulty(song: Song, difficulty: DifficultyType) -> Int? {
 //    switch difficulty {
 //        case
 //    }
 //}
 
-func isVariableBPMRange(bpmRange: String) -> Bool{
+func isVariableBPMRange(_ bpmRange: String) -> Bool{
     return bpmRange.contains("~")
 }
 
 func getMinMaxBPM(_ bpmRange: String) -> [Int]{
-    if isVariableBPMRange(bpmRange: bpmRange){
+    if isVariableBPMRange(bpmRange){
         let min = bpmRange.components(separatedBy: "~").first!
         let max = bpmRange.components(separatedBy: "~").last!
         return [Int(min)!, Int(max)!]
@@ -149,9 +171,7 @@ struct Song: Hashable, Codable, Identifiable {
     var id: String{
         titletranslit + version
     }
-    
-    
-    
+
 }
 //    enum DecodingKeys: String, CodingKey {
 //        case title, titletranslit, version, songLength, perChart, resources, levels, chart
