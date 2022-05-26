@@ -40,9 +40,7 @@ struct CourseList: View {
             /* Dropdown menu */
             ToolbarItem(placement: .navigationBarTrailing){
                 Menu{
-                    /* Mark favorites */
-                    ToolbarMenuMarkFav()
-                    
+
                     /* Single/Double */
                     ToolbarMenuSD()
                     
