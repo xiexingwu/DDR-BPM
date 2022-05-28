@@ -218,7 +218,7 @@ struct NavigableSongList: View {
                     .searchCompletion(song.title.lowercased())
             }
         }
-        .keyboardType(.default)
+        .keyboardType(.alphabet)
         .disableAutocorrection(true)
         .textInputAutocapitalization(.never)
         .onSubmit(of: .search){
