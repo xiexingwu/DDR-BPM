@@ -54,7 +54,6 @@ struct BPMPlot: View {
                  yGrid: true
         )
         .aspectRatio(contentMode: .fit)
-        .padding()
         
         
     }
@@ -309,7 +308,7 @@ struct BPMPlot_Previews: PreviewProvider {
     static var previews: some View {
         VStack{
             Text("Text before")
-            BPMPlot(song: modelData.songs[29], chartID: 3)
+            BPMPlot(song: modelData.songs[16], chartID: 3)
                 .environmentObject(modelData)
                 .environmentObject(viewModel)
                 .environmentObject(favorites)

@@ -109,14 +109,6 @@ struct SongDetail: View {
                         Divider()
 
                         Text("BPM")
-//                        ForEach(0 ... uniqueBPMs.count - 1 , id:\.self){ i in
-//                            HStack{
-//                                Text(String(format: "%d", uniqueBPMs[i]))
-//                                    .frame(maxWidth: .infinity)
-//                                Text(String(format: "%.2f", BPMlength[i]) + "sec")
-//                                    .frame(maxWidth: .infinity)
-//                            }
-//                        }
 
                         BPMPlot(song:song, chartID: chartID)
                     }
@@ -161,7 +153,7 @@ struct SongDetail_Previews: PreviewProvider {
     static let modelData = ModelData()
 
     static var previews: some View {
-        SongDetail(song: modelData.songs[29])
+        SongDetail(song: modelData.songs[16])
             .environmentObject(modelData)
             .environmentObject(viewModel)
             .environmentObject(favorites)
