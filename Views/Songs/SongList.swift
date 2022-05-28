@@ -71,7 +71,7 @@ struct SongList: View {
     
     private func groupSongsByLevel(_ songs: [Song]) -> [SongGroup] {
         var groups : [SongGroup] = []
-        for level in (1 ... 19).reversed() {
+        for level in (viewModel.filterMinLevel ... viewModel.filterMaxLevel).reversed() {
             let group = SongGroup(
                 sortType: .level,
                 name: level.formatted(),
