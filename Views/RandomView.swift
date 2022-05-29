@@ -127,7 +127,17 @@ struct RandomView: View {
             }
             .navigationTitle("Random songs")
             .navigationBarTitleDisplayMode(.inline)
-        }
+            .toolbar{
+                /* Dropdown menu */
+                ToolbarItem(placement: .navigationBarTrailing){
+                    Menu{
+                        /* Single/Double */
+                        ToolbarMenuSD()                        
+                    } label:{
+                        Label("Show Menu", systemImage: "line.3.horizontal")
+                    }
+                }
+            }        }
         
     }
 }
