@@ -16,14 +16,11 @@ import SwiftUI
 
 private func filterSongsByName(_ songs : [Song], _ text : String) -> [Song] {
     if text.isEmpty {return songs}
-
+    
     let filt = songs.filter { song in
         (song.title.lowercased().contains(text.lowercased()) || song.titletranslit.lowercased().contains(text.lowercased()))
     }
-//    print("---------")
-//    for song in filt {
-//        print(song.title)
-//    }
+
     return filt
 }
 
@@ -52,21 +49,24 @@ struct SongList: View {
         return filt
     }
     
-    private func groupSongs() -> [SongGroup] {
+    private func groupSongs() {
+        var songGroups : [SongGroup] = []
         if !viewModel.searchText.isEmpty {
-            return groupSongsByNone(filterSongsByName(filteredSongs, viewModel.searchText))
+            songGroups = groupSongsByNone(filterSongsByName(filteredSongs, viewModel.searchText))
+        } else {
+            
+            switch viewModel.userSort {
+            case .name:
+                songGroups = groupSongsByAlpha(filteredSongs)
+            case .version:
+                songGroups = groupSongsByVersion(filteredSongs)
+            case .level:
+                songGroups = groupSongsByLevel(filteredSongs)
+            case .none:
+                songGroups = groupSongsByNone(filteredSongs)
+            }
         }
-        
-        switch viewModel.userSort {
-        case .name:
-            return groupSongsByAlpha(filteredSongs)
-        case .version:
-            return groupSongsByVersion(filteredSongs)
-        case .level:
-            return groupSongsByLevel(filteredSongs)
-        case .none:
-            return groupSongsByNone(filteredSongs)
-        }
+        viewModel.songGroups = songGroups
     }
     
     private func groupSongsByLevel(_ songs: [Song]) -> [SongGroup] {
@@ -137,8 +137,8 @@ struct SongList: View {
         VStack{
             
             /* Song Grouping */
-            GroupedSongView(songGroups: groupSongs())
-            
+            GroupedSongView()
+
             /* Lower-screen filter */
             HStack{
                 Label("Favs",
@@ -168,8 +168,10 @@ struct SongList: View {
                        .frame(maxWidth: .infinity)
                 
             }
-            
-//            Text("Filters")
+            .onChange(of: viewModel.filterFavorites) { _ in groupSongs() }
+            .onChange(of: viewModel.filterMinLevel) { _ in groupSongs() }
+            .onChange(of: viewModel.filterMaxLevel) { _ in groupSongs() }
+
         }
         .navigationBarTitle("Songs")
         .navigationBarTitleDisplayMode(.inline)
@@ -182,19 +184,25 @@ struct SongList: View {
                     
                     /* Single/Double */
                     ToolbarMenuSD()
+                        .onChange(of: viewModel.userSD) { _ in groupSongs() }
                     
                     /* Sort by */
                     ToolbarMenuSort()
-                    
+                        .onChange(of: viewModel.userSort) { _ in groupSongs() }
+
                 } label:{
                     Label("Show Menu", systemImage: "line.3.horizontal")
                 }
             }
         }
+        .task {groupSongs()}
         .onChange(of: isSearching) { newValue in
             if !newValue {
                 viewModel.searchText = ""
             }
+        }
+        .onChange(of: viewModel.searchText) {_ in
+            groupSongs()
         }
     }
 }
@@ -202,7 +210,7 @@ struct SongList: View {
 struct NavigableSongList: View {
     @EnvironmentObject var modelData: ModelData
     @EnvironmentObject var viewModel: ViewModel
-
+    
     @Environment(\.dismissSearch) var dismissSearch
     @State private var searchText : String = ""
     
@@ -210,7 +218,6 @@ struct NavigableSongList: View {
         NavigationView{
             SongList()
         }
-//        .searchable(text: $viewModel.searchText, placement: .navigationBarDrawer(displayMode: .always)) {
         .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always)) {
             ForEach(filterSongsByName(modelData.songs, searchText)) { song in
                 Text(song.title)

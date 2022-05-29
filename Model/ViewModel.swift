@@ -20,6 +20,7 @@ class ViewModel : ObservableObject{
     @Published var searchText : String = ""
     
     @Published var filterFavorites : Bool = false
+    @Published var songGroups : [SongGroup] = []
     @AppStorage("userMinLevel") var filterMinLevel : Int = 1
     @AppStorage("userMaxLevel") var filterMaxLevel : Int = 19
 

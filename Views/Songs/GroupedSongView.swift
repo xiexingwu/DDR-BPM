@@ -62,12 +62,11 @@ private struct GroupedSongs : View{
 struct GroupedSongView: View {
     @EnvironmentObject var modelData: ModelData
     @EnvironmentObject var viewModel: ViewModel
-
-    var songGroups : [SongGroup]
     
     @State private var selectedGroup : Int = -1
 
     var body: some View {
+        let songGroups = viewModel.songGroups
         if songGroups.count > 0{
             List{
                 ForEach(0 ... songGroups.count - 1, id:\.self) { i in
