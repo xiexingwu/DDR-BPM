@@ -22,6 +22,10 @@ struct MainView: View {
                 .tabItem{
                     Label("Courses", systemImage : "folder")
                 }
+            RandomView()
+                .tabItem{
+                    Label("Random", systemImage: "questionmark")
+                }
             SettingView()
                 .tabItem {
                     Label("Settings", systemImage: "gear.circle")
