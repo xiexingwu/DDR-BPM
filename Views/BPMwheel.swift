@@ -41,9 +41,12 @@ struct BPMwheel: View {
     
     private var wheelMid : (String, Int) {
         if isVariableBPMRange(bpmRange){
-            let dom = dominantBPM ?? bpms[0]
-            if dom != bpms[0] && dom != bpms[1]{
-                return ("Mostly", dom)
+            if let dom = dominantBPM {
+                if dom != bpms[1] {
+                    return ("Mostly", dom)
+                } else {
+                    return ("Min", bpms[0])
+                }
             } else {
                 return ("Min", bpms[0])
             }
@@ -53,14 +56,22 @@ struct BPMwheel: View {
     }
     private var wheelRight : (String, Int?) {
         if isVariableBPMRange(bpmRange){
-            return ("Max", bpms[1])
+            if let dom = dominantBPM {
+                if dom == bpms[1] {
+                    return ("Mostly", dom)
+                } else {
+                    return ("Max", bpms[1])
+                }
+            } else {
+                return ("Max", bpms[1])
+            }
         } else {
             return ("", nil)
         }
     }
 
     func closestSpeedMod (_ target: Int) -> Double {
-        let speeds = BPMwheel.speedMods.map { Int($0 * Double(wheelMid.1)) }
+        let speeds = BPMwheel.speedMods.map { Int($0 * Double(dominantBPM ?? (wheelRight.1 ?? wheelMid.1))) }
         let closest = speeds.enumerated().min( by: {abs($0.1 - target) < abs($1.1 - target)} )!
         return BPMwheel.speedMods[closest.offset]
     }
