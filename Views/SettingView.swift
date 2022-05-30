@@ -91,10 +91,10 @@ struct SettingView: View {
                 Button(role: .destructive){
                     showingClearCoursesConfirmation = true
                 } label:{
-                    Label("Clear custom courses", systemImage: "trash")
+                    Label("Reset courses", systemImage: "trash")
                 }
                 .confirmationDialog(
-                    "Confirm clearing custom courses?",
+                    "Confirm resetting courses?",
                     isPresented: $showingClearCoursesConfirmation,
                     titleVisibility: .visible
                 ){

@@ -24,5 +24,6 @@ class ViewModel : ObservableObject{
     @AppStorage("userMinLevel") var filterMinLevel : Int = 1
     @AppStorage("userMaxLevel") var filterMaxLevel : Int = 19
 
+    @Published var activeSongDetail : String = ""
 }
 

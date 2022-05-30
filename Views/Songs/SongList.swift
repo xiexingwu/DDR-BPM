@@ -14,15 +14,7 @@ import SwiftUI
 //    )
 //}
 
-private func filterSongsByName(_ songs : [Song], _ text : String) -> [Song] {
-    if text.isEmpty {return songs}
-    
-    let filt = songs.filter { song in
-        (song.title.lowercased().contains(text.lowercased()) || song.titletranslit.lowercased().contains(text.lowercased()))
-    }
 
-    return filt
-}
 
 struct SongList: View {
     @EnvironmentObject var modelData: ModelData
@@ -214,15 +206,17 @@ struct NavigableSongList: View {
     @Environment(\.dismissSearch) var dismissSearch
     @State private var searchText : String = ""
     
+    private var filteredSongs : [Song] { filterSongsByName(modelData.songs, searchText) }
+    
     var body: some View{
         NavigationView{
             SongList()
         }
         .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always)) {
-            ForEach(filterSongsByName(modelData.songs, searchText)) { song in
+            ForEach(filteredSongs) { song in
                 Text(song.title)
-                    .searchCompletion(song.titletranslit.lowercased())
-                    .searchCompletion(song.title.lowercased())
+                    .searchCompletion(song.titletranslit)
+                    .searchCompletion(song.title)
             }
         }
         .keyboardType(.alphabet)
@@ -230,6 +224,10 @@ struct NavigableSongList: View {
         .textInputAutocapitalization(.never)
         .onSubmit(of: .search){
             viewModel.searchText = searchText
+            let searchedSongs = filteredSongs.filter{$0.titletranslit.lowercased() == searchText.lowercased() || $0.title.lowercased() == searchText.lowercased()}
+            if searchedSongs.count == 1 {
+                viewModel.activeSongDetail = searchedSongs[0].id
+            }
             dismissSearch()
         }
 

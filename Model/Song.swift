@@ -86,6 +86,16 @@ func getChartIDFromUser(_ song: Song, _ viewModel: ViewModel) -> Int {
 //    }
 //}
 
+func filterSongsByName(_ songs : [Song], _ text : String) -> [Song] {
+    if text.isEmpty {return songs}
+    
+    let filt = songs.filter { song in
+        (song.title.lowercased().contains(text.lowercased()) || song.titletranslit.lowercased().contains(text.lowercased()))
+    }
+
+    return filt
+}
+
 func isVariableBPMRange(_ bpmRange: String) -> Bool{
     return bpmRange.contains("~")
 }

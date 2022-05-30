@@ -116,12 +116,21 @@ struct NavigableSongRow: View {
     let song : Song
     
     var body: some View{
+        let activeSongBinding = Binding(
+            get: {
+                viewModel.activeSongDetail == song.id
+            },
+            set: {
+                viewModel.activeSongDetail = $0 ? song.id : ""
+            }
+        )
+        
         Button{
         } label: {
             SongRow(song: song)
         }
         .background(
-            NavigationLink( destination: SongDetail(song:song) ){
+            NavigationLink( destination: SongDetail(song:song), isActive: activeSongBinding ){
                 EmptyView()
             }
                 .disabled(viewModel.markingFavorites)
