@@ -8,7 +8,7 @@
 import Foundation
 import SwiftUI
 
-enum DifficultyType: String, Equatable, CaseIterable{
+enum DifficultyType: String, Equatable, CaseIterable, Codable{
     case challenge = "Challenge"
     case expert    = "Expert"
     case difficult = "Difficult"
@@ -64,7 +64,7 @@ struct Difficulty: Hashable, Identifiable {
         difficulty
     }
     
-    static func fromDifficultyLevels(_ song: Song, sd: SDType) -> [Difficulty] {
+    static func fromSongSD(_ song: Song, sd: SDType) -> [Difficulty] {
         var arr : [Difficulty] = []
         if let difficultyLevels = sd == .single ? song.levels.single : song.levels.double {
             if let l = difficultyLevels.beginner  {

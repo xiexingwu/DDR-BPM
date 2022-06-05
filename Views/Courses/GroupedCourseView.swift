@@ -25,7 +25,7 @@ private struct GroupedCourses : View{
     @Binding var isExpanded : Bool
     
     var body: some View {
-        if !viewModel.searchText.isEmpty || viewModel.userSort == .none {
+        if !viewModel.searchText.isEmpty || viewModel.userCourseSort == .none {
 //            Text("\(courseGroup.courses!.count) courses")
             CoursesInGroup(courseGroup: courseGroup)
         } else {
@@ -39,10 +39,11 @@ private struct GroupedCourses : View{
     
     func header(_ courseGroup: CourseGroup) -> some View {
         var view = Text("")
-        //        + Text("\(viewModel.selectedGroup) -- \(isExpanded ? "true" : "false")")
         switch courseGroup.sortType{
         case .level:
-            view = view + Text("\(courseGroup.sortType.rawValue) ")
+            if courseGroup.name != "Variable"{
+                view = view + Text(courseGroup.sortType.rawValue+" ")
+            }
             fallthrough
         case .name:
             fallthrough
@@ -76,6 +77,11 @@ struct GroupedCourseView: View {
                         set: { _ in return selectedGroup = selectedGroup == i ? -1 : i }
                     ))
                 }
+            }
+            .listStyle(.plain)
+        } else {
+            List {
+                EmptyView()
             }
             .listStyle(.plain)
         }

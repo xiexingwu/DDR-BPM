@@ -22,7 +22,7 @@ struct SongList: View {
     @EnvironmentObject var viewModel: ViewModel
     
     @Environment(\.isSearching) var isSearching
-
+    
     var filteredSongs : [Song] {
         var filt = modelData.songs
         
@@ -47,7 +47,7 @@ struct SongList: View {
             songGroups = groupSongsByNone(filterSongsByName(filteredSongs, viewModel.searchText))
         } else {
             
-            switch viewModel.userSort {
+            switch viewModel.userSongSort {
             case .name:
                 songGroups = groupSongsByAlpha(filteredSongs)
             case .version:
@@ -130,40 +130,12 @@ struct SongList: View {
             
             /* Song Grouping */
             GroupedSongView()
-
+            
             /* Lower-screen filter */
-            HStack{
-                Label("Favs",
-                      systemImage: viewModel.filterFavorites ? "star.fill" : "star")
-                .onTapGesture {
-                    viewModel.filterFavorites.toggle()
-                }
-                .foregroundColor(.blue)
-                .frame(maxWidth: .infinity)
-                
-                Picker(selection: $viewModel.filterMinLevel,
-                       label:Text("Min level: \(viewModel.filterMinLevel)")){
-                    ForEach((1...viewModel.filterMaxLevel), id:\.self){
-                        Text("Min: \($0)")
-                    }
-                }
-                       .pickerStyle(.menu)
-                       .frame(maxWidth: .infinity)
-                
-                Picker(selection: $viewModel.filterMaxLevel,
-                       label:Text("Max level: \(viewModel.filterMinLevel)")){
-                    ForEach((viewModel.filterMinLevel...19).reversed(), id:\.self){
-                        Text("Max: \($0)")
-                    }
-                }
-                       .pickerStyle(.menu)
-                       .frame(maxWidth: .infinity)
-                
-            }
-            .onChange(of: viewModel.filterFavorites) { _ in groupSongs() }
-            .onChange(of: viewModel.filterMinLevel) { _ in groupSongs() }
-            .onChange(of: viewModel.filterMaxLevel) { _ in groupSongs() }
-
+            ToolbarSongFilter()
+                .onChange(of: viewModel.filterFavorites) { _ in groupSongs() }
+                .onChange(of: viewModel.filterMinLevel) { _ in groupSongs() }
+                .onChange(of: viewModel.filterMaxLevel) { _ in groupSongs() }
         }
         .navigationBarTitle("Songs")
         .navigationBarTitleDisplayMode(.inline)
@@ -179,9 +151,9 @@ struct SongList: View {
                         .onChange(of: viewModel.userSD) { _ in groupSongs() }
                     
                     /* Sort by */
-                    ToolbarMenuSort()
-                        .onChange(of: viewModel.userSort) { _ in groupSongs() }
-
+                    ToolbarMenuSort(sorting: .song)
+                        .onChange(of: viewModel.userSongSort) { _ in groupSongs() }
+                    
                 } label:{
                     Label("Show Menu", systemImage: "line.3.horizontal")
                 }
@@ -230,7 +202,7 @@ struct NavigableSongList: View {
             }
             dismissSearch()
         }
-
+        
     }
 }
 

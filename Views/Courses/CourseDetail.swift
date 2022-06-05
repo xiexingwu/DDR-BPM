@@ -13,18 +13,25 @@ struct CourseDetail: View {
     
     var course: Course
     
-    private var songs : [Song] {
-        var songs : [Song] = []
+    private var songDiffs : [(Song, DifficultyType?)] {
+        var songs : [(Song, DifficultyType?)] = []
         let allSongs = modelData.songs
-        for title in course.titles {
-            let songID = getSongIndexByName(title, allSongs)
-            songs.append(allSongs[songID])
+        for song in course.songs {
+            let songID = getSongIndexByName(song.name, allSongs)
+            songs.append((allSongs[songID], song.difficulty))
         }
         return songs
     }
     
     private var minMaxBPM : [Int] {
-        let bpms = songs.map {getMinMaxBPM($0.chart[0].bpmRange)}
+        let bpms = songDiffs.map { (song, diff) -> [Int] in
+            if let diff = diff{
+                let chartID = getChartIDFromDifficulty(song, diff)
+                return getMinMaxBPM(song.chart[chartID].bpmRange)
+            }else{
+                return getMinMaxBPM(song.chart[0].bpmRange)
+            }
+        }
         let minBPM = bpms.map {$0.first!} .min()!
         let maxBPM = bpms.map {$0.last!} .max()!
         return [minBPM, maxBPM]
@@ -35,9 +42,16 @@ struct CourseDetail: View {
             Text(course.name)
                 .font(.title)
 
+            if course.level == -1{
+                Text("Variable Level")
+            } else {
+                Text("Level \(course.level)")
+            }
+            
             List{
-                ForEach(songs, id:\.self){ song in
-                    NavigableSongRow(song: song)
+                ForEach(0 ... course.songs.count-1, id:\.self){ i in
+                    let (song, diff) = songDiffs[i]
+                    NavigableSongRow(song: song, difficulty: diff)
                 }
             }
             .listStyle(.plain)

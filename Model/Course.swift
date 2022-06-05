@@ -23,17 +23,21 @@ struct Course: Hashable, Codable, Identifiable {
     var id: String{
         name+source
     }
-    var titles: [String]
+    var songs: [CourseSong]
     var source: String
     
     var level: Int
+}
+struct CourseSong: Hashable, Codable {
+    var name: String
+    var difficulty: DifficultyType?
 }
 
 struct CourseGroup: Identifiable{
     
     var sortType: SortType = .name
     var name: String = ""
-    var courses: [CourseGroup]? = nil
+    var courses: [CourseGroup]?
 
 
     var id: String {

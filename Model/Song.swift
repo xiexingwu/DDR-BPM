@@ -78,18 +78,16 @@ private func cleanTitleSearch(_ txt : String) -> String{
 
 
 func getChartIDFromUser(_ song: Song, _ viewModel: ViewModel) -> Int {
+    return getChartIDFromDifficulty(song, viewModel.userDiff, viewModel.userSD)
+}
+func getChartIDFromDifficulty(_ song: Song, _ difficulty: DifficultyType, _ sd: SDType = .single) -> Int {
     if (!song.perChart) {
         return 0
     }else{
-        let songDifficulties = Difficulty.fromDifficultyLevels(song, sd: viewModel.userSD)
-        return songDifficulties.firstIndex(where: { $0.difficulty == viewModel.userDiff })!
+        let songDifficulties = Difficulty.fromSongSD(song, sd: sd)
+        return songDifficulties.firstIndex(where: { $0.difficulty == difficulty })!
     }
 }
-//func getSongLevelByDifficulty(song: Song, difficulty: DifficultyType) -> Int? {
-//    switch difficulty {
-//        case
-//    }
-//}
 
 func filterSongsByName(_ songs : [Song], _ text : String) -> [Song] {
     if text.isEmpty {return songs}
@@ -166,7 +164,7 @@ struct SongGroup: Identifiable {//, ObservableObject {
 }
 
 struct Song: Hashable, Codable, Identifiable {
-    
+    var name: String
     var title: String
     var titletranslit: String
     var version: String

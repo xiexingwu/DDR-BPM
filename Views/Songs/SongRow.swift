@@ -11,10 +11,29 @@ struct DifficultiesText: View{
     @EnvironmentObject var viewModel: ViewModel
     
     var song: Song
+    var difficulty: DifficultyType?
     
     var body: some View {
         if let levels = viewModel.userSD == .single ? song.levels.single : song.levels.double {
-            HStack{
+            if let difficulty = difficulty {
+                switch difficulty {
+                case .beginner:
+                    Text("\(levels.beginner?.formatted()  ?? "-")")
+                        .foregroundColor(difficultyColor(.beginner))
+                case .basic:
+                    Text("\(levels.easy?.formatted()      ?? "-")")
+                        .foregroundColor(difficultyColor(.basic))
+                case .difficult:
+                    Text("\(levels.medium?.formatted()    ?? "-")")
+                        .foregroundColor(difficultyColor(.difficult))
+                case .expert:
+                    Text("\(levels.hard?.formatted()      ?? "-")")
+                        .foregroundColor(difficultyColor(.expert))
+                case .challenge:
+                    Text("\(levels.challenge?.formatted() ?? "-")")
+                        .foregroundColor(difficultyColor(.challenge))
+                }
+            } else {
                 Text("\(levels.beginner?.formatted()  ?? "-")")
                     .foregroundColor(difficultyColor(.beginner))
                 
@@ -51,7 +70,7 @@ struct SongRow: View {
     @EnvironmentObject var viewModel: ViewModel
     
     var song: Song
-    
+    var difficulty: DifficultyType?
     var isMinimal: Bool = false
     
     private var id: Int {
@@ -71,6 +90,10 @@ struct SongRow: View {
     var body: some View {
         if isMinimal{
             HStack{
+                if let difficulty = difficulty {
+                    DifficultiesText(song:song, difficulty: difficulty)
+                        .frame(minWidth: 10)
+                }
                 Text(song.title)
                 Spacer()
                 Text(song.chart[0].bpmRange)
@@ -88,7 +111,7 @@ struct SongRow: View {
                         Text(song.title)
                         
                         HStack{
-                            DifficultiesText(song:song)
+                            DifficultiesText(song:song, difficulty: difficulty)
                             Spacer()
                             Text(song.chart[0].bpmRange)
                             //                            Text(song.version)
@@ -114,7 +137,8 @@ struct NavigableSongRow: View {
     @EnvironmentObject var viewModel : ViewModel
     
     let song : Song
-    
+    var difficulty: DifficultyType?
+
     var body: some View{
         let activeSongBinding = Binding(
             get: {
@@ -127,10 +151,10 @@ struct NavigableSongRow: View {
         
         Button{
         } label: {
-            SongRow(song: song)
+            SongRow(song: song, difficulty: difficulty)
         }
         .background(
-            NavigationLink( destination: SongDetail(song:song), isActive: activeSongBinding ){
+            NavigationLink( destination: SongDetail(song:song, difficulty: difficulty), isActive: activeSongBinding ){
                 EmptyView()
             }
                 .disabled(viewModel.markingFavorites)
@@ -147,6 +171,7 @@ struct SongRow_Previews: PreviewProvider {
     static var previews: some View {
         Group{
             SongRow(song: songs[293])
+            SongRow(song: songs[293], difficulty: .basic)
             SongRow(song: songs[7], isMinimal: true)
         }
         .environmentObject(modelData)

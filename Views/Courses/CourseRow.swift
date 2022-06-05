@@ -15,12 +15,12 @@ struct NavigableCourseRow: View {
 
     var course: Course
     
-    private var songs : [Song] {
-        var songs : [Song] = []
+    private var songDiffs : [(Song, DifficultyType?)] {
+        var songs : [(Song, DifficultyType?)] = []
         let allSongs = modelData.songs
-        for title in course.titles {
-            let songID = getSongIndexByName(title, allSongs)
-            songs.append(allSongs[songID])
+        for song in course.songs {
+            let songID = getSongIndexByName(song.name, allSongs)
+            songs.append((allSongs[songID], song.difficulty))
         }
         return songs
     }
@@ -38,9 +38,9 @@ struct NavigableCourseRow: View {
             )
             .padding()
 
-
-            ForEach(songs, id:\.self){ song in
-                SongRow(song: song, isMinimal: true)
+            ForEach(0 ... course.songs.count-1, id:\.self){ i in
+                let (song, diff) = songDiffs[i]
+                SongRow(song: song, difficulty: diff, isMinimal: true)
             }
 
         }
@@ -48,10 +48,17 @@ struct NavigableCourseRow: View {
     }
     
     var header: some View {
-        Text(course.name)
-            .font(.title2)
-            .foregroundColor(.primary)
-            .frame(maxWidth: .infinity)
+        VStack{
+            Text(course.name)
+                .font(.title2)
+                .foregroundColor(.primary)
+                .frame(maxWidth: .infinity)
+
+            if course.level > 0{
+                Text("Level \(course.level)")
+                    .font(.title3)
+            }
+        }
     }
 }
 

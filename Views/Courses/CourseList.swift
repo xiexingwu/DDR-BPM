@@ -24,16 +24,29 @@ struct CourseList: View {
     @Environment(\.isSearching) var isSearching
 
     var filteredCourses : [Course] {
-        let filt = modelData.courses
+        var filt = modelData.courses
+        
+        if !viewModel.userShowDDRCourses{
+            filt = filt.filter{$0.source != "DDR"}
+        }
+        if !viewModel.userShowLIFE4Courses{
+            filt = filt.filter{$0.source != "LIFE4"}
+        }
+        if !viewModel.userShowCustomCourses{
+            filt = filt.filter{$0.source != "Custom"}
+        }
 
         return filt
     }
     
     var body: some View {
-//        VStack{
-            /* Song Grouping */
+        VStack{
+            /* Course Grouping */
             GroupedCourseView(courseGroups: groupCourses())
-//        }
+
+            /* Lower-screen filter */
+            ToolbarCourseFilter()
+        }
         .navigationBarTitle("Courses")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar{
@@ -45,7 +58,7 @@ struct CourseList: View {
                     ToolbarMenuSD()
                     
                     /* Sort by */
-                    ToolbarMenuSort()
+                    ToolbarMenuSort(sorting: .course)
                     
                 } label:{
                     Label("Show Menu", systemImage: "line.3.horizontal")
@@ -59,7 +72,7 @@ struct CourseList: View {
             return groupCoursesByNone(filterCoursesByName(filteredCourses, viewModel.searchText))
         }
         
-        switch viewModel.userSort {
+        switch viewModel.userCourseSort {
         case .version:
             return groupCoursesBySource(filteredCourses)
         case .level:
@@ -94,6 +107,18 @@ struct CourseList: View {
             )
             if group.courses!.count > 0 { groups.append(group) }
         }
+
+        /* Variable level courses */
+        let level = -1
+        let group = CourseGroup(
+            sortType: .level,
+            name: "Variable",
+            courses: courses
+                .filter{ $0.level == level }
+                .map{CourseGroup.fromCourse($0, sortType: .level)}
+        )
+        if group.courses!.count > 0 { groups.append(group) }
+
         return groups
     }
     

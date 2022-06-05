@@ -26,7 +26,7 @@ private struct GroupedSongs : View{
     @Binding var isExpanded : Bool
     
     var body: some View {
-        if !viewModel.searchText.isEmpty || viewModel.userSort == .none {
+        if !viewModel.searchText.isEmpty || viewModel.userSongSort == .none {
             Text("\(songGroup.songs!.count) songs")
             SongsInGroup(songGroup: songGroup)
         } else {
@@ -40,7 +40,6 @@ private struct GroupedSongs : View{
     
     func header(_ songGroup: SongGroup) -> some View {
         var view = Text("")
-//        + Text("\(viewModel.selectedGroup) -- \(isExpanded ? "true" : "false")")
         switch songGroup.sortType{
         case .level:
             view = view + Text("\(songGroup.sortType.rawValue) ")

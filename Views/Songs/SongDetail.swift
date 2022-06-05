@@ -16,14 +16,14 @@ struct SongDetail: View {
     /* TODO: Capture and apply user-selected difficulty, and consider when difficulty not available for song */
 
     var song: Song
-    
-    var id: Int {
-        modelData.songs.firstIndex(where: {$0.id == song.id })!
-    }
+    var difficulty: DifficultyType?
+//    var id: Int {
+//        modelData.songs.firstIndex(where: {$0.id == song.id })!
+//    }
 
     
     private var songDifficulties : [Difficulty] {
-        Difficulty.fromDifficultyLevels(song, sd: viewModel.userSD)
+        Difficulty.fromSongSD(song, sd: viewModel.userSD)
 //        getSongDifficulties(song, sd: viewModel.userSD)
     }
     
@@ -72,7 +72,8 @@ struct SongDetail: View {
 
                     Spacer()
                     
-                    FavoriteButton(song: modelData.songs[id])
+//                    FavoriteButton(song: modelData.songs[id])
+                    FavoriteButton(song: song)
                 }
                 .padding([.leading, .trailing], 30)
                 
@@ -83,16 +84,20 @@ struct SongDetail: View {
                     .padding([.bottom])
                 
                 /* Difficulty selector */
+                let selectedDiff = Binding(
+                    get: {difficulty ?? viewModel.userDiff},
+                    set: {viewModel.userDiff = $0}
+                )
                 VStack{
-                    Text("\(viewModel.userDiff.rawValue)")
+                    Text("\(selectedDiff.wrappedValue.rawValue)")
 
-                    Picker("Pick difficulty", selection: viewModel.$userDiff){
+                    Picker("Pick difficulty", selection: selectedDiff){
                         ForEach(songDifficulties){ difficulty in
                             DifficultyText(difficulty:difficulty, text: difficulty.level.formatted()).tag(difficulty.difficulty)
                         }
                     }
                     .pickerStyle(.segmented)
-                    .colorMultiply(difficultyColor( viewModel.userDiff ))
+                    .colorMultiply(difficultyColor(selectedDiff.wrappedValue))
                 }
 
                 /* BPM Wheel */
