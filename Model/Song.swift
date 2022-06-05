@@ -61,9 +61,14 @@ func getSongIndexByTitletranslit(_ title: String, _ songs: [Song]) -> Int {
     songs.firstIndex(where: {
         let src = cleanTitleSearch($0.titletranslit)
         let tgt = cleanTitleSearch(title)
-//        print("searching \(tgt) in \(src)")
         return tgt == src
-//        cleanTitleSearch($0.titletranslit) == cleanTitleSearch(title)
+    })!
+}
+func getSongIndexByName(_ name: String, _ songs: [Song]) -> Int {
+    songs.firstIndex(where: {
+        let src = cleanTitleSearch($0.name)
+        let tgt = cleanTitleSearch(name)
+        return tgt == src
     })!
 }
 

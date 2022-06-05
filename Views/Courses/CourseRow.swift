@@ -19,7 +19,7 @@ struct NavigableCourseRow: View {
         var songs : [Song] = []
         let allSongs = modelData.songs
         for title in course.titles {
-            let songID = getSongIndexByTitletranslit(title, allSongs)
+            let songID = getSongIndexByName(title, allSongs)
             songs.append(allSongs[songID])
         }
         return songs
