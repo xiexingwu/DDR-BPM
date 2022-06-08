@@ -9,9 +9,9 @@ import SwiftUI
 
 struct SettingView: View {
     enum FocusField: Hashable {
-      case readSpeedField
+        case readSpeedField
     }
-
+    
     @EnvironmentObject var modelData: ModelData
     @EnvironmentObject var favorites: Favorites
     @EnvironmentObject var viewModel: ViewModel
@@ -19,7 +19,7 @@ struct SettingView: View {
     @State private var showingClearCoursesConfirmation : Bool = false
     @State private var tempReadSpeed : Int?
     @FocusState private var focusedField : FocusField?
-
+    
     @State private var alertInvalidReadSpeed : Bool = false
     @State private var alertValidReadSpeed : Bool = false
     
@@ -35,77 +35,84 @@ struct SettingView: View {
     var body: some View {
         NavigationView{
             
-            List{
+            VStack{
                 
-                /* Set read speed */
-                HStack {
-                    Text("Set read speed:")
+                
+                List{
                     
-                    TextField(viewModel.userReadSpeed.formatted(),
-                              value: $tempReadSpeed,
-                              format: .number
-                    )
-                    .focused($focusedField, equals: .readSpeedField)
-                    .frame(maxWidth: .infinity)
+                    /* Set read speed */
+                    HStack {
+                        Text("Set read speed:")
+                        
+                        TextField(viewModel.userReadSpeed.formatted(),
+                                  value: $tempReadSpeed,
+                                  format: .number
+                        )
+                        .focused($focusedField, equals: .readSpeedField)
+                        .frame(maxWidth: .infinity)
+                        
+                        Button{
+                            if validInput() {
+                                viewModel.userReadSpeed = tempReadSpeed!
+                                focusedField = nil
+                                alertValidReadSpeed = true
+                            } else {
+                                alertInvalidReadSpeed = true
+                            }
+                        } label: {
+                            Text(" Set ")
+                                .foregroundColor(.blue)
+                        }
+                        .buttonStyle(.plain)
+                        .alert("Invalid read speed.", isPresented: $alertInvalidReadSpeed){
+                            Button("OK", role: .cancel) {
+                                focusedField = .readSpeedField
+                            }
+                        }
+                        .alert("Read speed set to \(tempReadSpeed ?? 0).", isPresented: $alertValidReadSpeed){
+                            Button("OK", role: .cancel) {tempReadSpeed = nil; }
+                        }
+                    }
                     
-                    Button{
-                        if validInput() {
-                            viewModel.userReadSpeed = tempReadSpeed!
-                            focusedField = nil
-                            alertValidReadSpeed = true
-                        } else {
-                            alertInvalidReadSpeed = true
-                        }
-                    } label: {
-                        Text(" Set ")
-                            .foregroundColor(.blue)
+                    /* Clear favorites */
+                    Button(role: .destructive){
+                        showingClearFavConfirmation = true
+                    } label:{
+                        Label("Clear favorites", systemImage: "trash")
                     }
-                    .buttonStyle(.plain)
-                    .alert("Invalid read speed.", isPresented: $alertInvalidReadSpeed){
-                        Button("OK", role: .cancel) {
-                            focusedField = .readSpeedField
+                    .confirmationDialog(
+                        "Confirm clearing favorites?",
+                        isPresented: $showingClearFavConfirmation,
+                        titleVisibility: .visible
+                    ){
+                        Button("Yes", role: .destructive){
+                            favorites.clear()
                         }
                     }
-                    .alert("Read speed set to \(tempReadSpeed ?? 0).", isPresented: $alertValidReadSpeed){
-                        Button("OK", role: .cancel) {tempReadSpeed = nil; }
+                    
+                    /* Clear custom courses */
+                    Button(role: .destructive){
+                        showingClearCoursesConfirmation = true
+                    } label:{
+                        Label("Reset courses", systemImage: "trash")
+                    }
+                    .confirmationDialog(
+                        "Confirm resetting courses?",
+                        isPresented: $showingClearCoursesConfirmation,
+                        titleVisibility: .visible
+                    ){
+                        Button("Yes", role: .destructive){
+                            modelData.resetCourses()
+                        }
                     }
                 }
-                
-                /* Clear favorites */
-                Button(role: .destructive){
-                    showingClearFavConfirmation = true
-                } label:{
-                    Label("Clear favorites", systemImage: "trash")
-                }
-                .confirmationDialog(
-                    "Confirm clearing favorites?",
-                    isPresented: $showingClearFavConfirmation,
-                    titleVisibility: .visible
-                ){
-                    Button("Yes", role: .destructive){
-                        favorites.clear()
-                    }
-                }
-                
-                /* Clear custom courses */
-                Button(role: .destructive){
-                    showingClearCoursesConfirmation = true
-                } label:{
-                    Label("Reset courses", systemImage: "trash")
-                }
-                .confirmationDialog(
-                    "Confirm resetting courses?",
-                    isPresented: $showingClearCoursesConfirmation,
-                    titleVisibility: .visible
-                ){
-                    Button("Yes", role: .destructive){
-                        modelData.resetCourses()
-                    }
-                }
-            }
-            .navigationBarTitle("Settings")
-        }
+                .navigationBarTitle("Settings")
 
+                Link("Support me (PayPal)", destination: URL(string: "https://www.paypal.com/donate/?hosted_button_id=2R64RY6ZL52EW")!)
+//                    .foregroundColor(.blue)
+            }
+        }
+        
         
     }
 }
