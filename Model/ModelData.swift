@@ -13,29 +13,59 @@ import Combine
 final class ModelData: ObservableObject {
     
     var songs: [Song] = []
-    var courses: [Course] = []
+    @Published var courses: [Course] = []
 
     init () {
         self.songs = loadSongs("data.json").sorted(by: {
             $0.titletranslit.lowercased() < $1.titletranslit.lowercased()
         })
         self.courses = loadCourses()
+        findCourseSongs()
     }
-    
+    func loadSongs(_ filename: String) -> [Song] {
+        return load(filename)
+    }
+
     func resetCourses() {
         self.courses = loadDefaultCourses()
+        findCourseSongs()
     }
 
+    func saveCourses(_ courses: [Course]) {
+        let encoder = JSONEncoder()
+        if let encoded = try? encoder.encode(courses) {
+            let defaults = UserDefaults.standard
+            defaults.set(encoded, forKey: "userCourses")
+        }
+    }
+
+    func loadCourses() -> [Course] {
+        let defaults = UserDefaults.standard
+        if let savedCourses = defaults.object(forKey: "userCourses") as? Data {
+            let decoder = JSONDecoder()
+            if let loadedCourses = try? decoder.decode([Course].self, from: savedCourses) {
+                return loadedCourses
+            } else {
+                return loadDefaultCourses()
+            }
+        } else {
+            return loadDefaultCourses()
+        }
+    }
+
+    func loadDefaultCourses() -> [Course] {
+        let courses : [Course] = load("courses.json")
+        saveCourses(courses)
+        return courses
+    }
+    
+    func findCourseSongs(){
+        for i in 0 ... self.courses.count-1 {
+            self.courses[i].findSongs(self.songs)
+        }
+    }
 }
 
-func loadSongs(_ filename: String) -> [Song] {
-    return load(filename)
-}
-func loadDefaultCourses() -> [Course] {
-    let courses : [Course] = load("courses.json")
-    saveCourses(courses)
-    return courses
-}
 
 func load<T: Decodable>(_ filename: String) -> T {
     let data: Data
@@ -59,27 +89,3 @@ func load<T: Decodable>(_ filename: String) -> T {
         fatalError("Couldn't parse \(filename) as \(T.self):\n\(error)")
     }
 }
-
-func saveCourses(_ courses: [Course]) {
-    let encoder = JSONEncoder()
-    if let encoded = try? encoder.encode(courses) {
-        let defaults = UserDefaults.standard
-        defaults.set(encoded, forKey: "userCourses")
-    }
-}
-
-func loadCourses() -> [Course] {
-    let defaults = UserDefaults.standard
-    if let savedCourses = defaults.object(forKey: "userCourses") as? Data {
-        let decoder = JSONDecoder()
-        if let loadedCourses = try? decoder.decode([Course].self, from: savedCourses) {
-            return loadedCourses
-        } else {
-            return loadDefaultCourses()
-        }
-    } else {
-        return loadDefaultCourses()
-    }
-}
-
-

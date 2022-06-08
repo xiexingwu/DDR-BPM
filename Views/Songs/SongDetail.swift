@@ -27,12 +27,12 @@ struct SongDetail: View {
 //        getSongDifficulties(song, sd: viewModel.userSD)
     }
     
-    private var chartID: Int {
-        getChartIDFromUser(song, viewModel)
+    private var chartIndex: Int {
+        getChartIndexFromUser(song, viewModel)
     }
     
     private var chart: Chart {
-        song.chart[chartID]
+        song.chart[chartIndex]
     }
 
 
@@ -104,7 +104,7 @@ struct SongDetail: View {
                 VStack{
                     Text("BPM: \(chart.bpmRange)")
 
-                    BPMwheel(bpmRange : song.chart[chartID].bpmRange, dominantBPM: song.chart[chartID].dominantBpm)
+                    BPMwheel(bpmRange : song.chart[chartIndex].bpmRange, dominantBPM: song.chart[chartIndex].dominantBpm)
                 }.padding([.top, .bottom], 50)
 
 
@@ -115,7 +115,7 @@ struct SongDetail: View {
 
                         Text("BPM")
 
-                        BPMPlot(song:song, chartID: chartID)
+                        BPMPlot(song:song, chartIndex: chartIndex)
                     }
 
                     

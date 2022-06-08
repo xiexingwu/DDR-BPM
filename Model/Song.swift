@@ -77,10 +77,10 @@ private func cleanTitleSearch(_ txt : String) -> String{
 }
 
 
-func getChartIDFromUser(_ song: Song, _ viewModel: ViewModel) -> Int {
-    return getChartIDFromDifficulty(song, viewModel.userDiff, viewModel.userSD)
+func getChartIndexFromUser(_ song: Song, _ viewModel: ViewModel) -> Int {
+    return getChartIndexFromDifficulty(song, viewModel.userDiff, viewModel.userSD)
 }
-func getChartIDFromDifficulty(_ song: Song, _ difficulty: DifficultyType, _ sd: SDType = .single) -> Int {
+func getChartIndexFromDifficulty(_ song: Song, _ difficulty: DifficultyType, _ sd: SDType = .single) -> Int {
     if (!song.perChart) {
         return 0
     }else{

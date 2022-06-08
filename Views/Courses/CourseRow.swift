@@ -15,16 +15,6 @@ struct NavigableCourseRow: View {
 
     var course: Course
     
-    private var songDiffs : [(Song, DifficultyType?)] {
-        var songs : [(Song, DifficultyType?)] = []
-        let allSongs = modelData.songs
-        for song in course.songs {
-            let songID = getSongIndexByName(song.name, allSongs)
-            songs.append((allSongs[songID], song.difficulty))
-        }
-        return songs
-    }
-    
     var body: some View {
         VStack{
             Button{
@@ -38,9 +28,8 @@ struct NavigableCourseRow: View {
             )
             .padding()
 
-            ForEach(0 ... course.songs.count-1, id:\.self){ i in
-                let (song, diff) = songDiffs[i]
-                SongRow(song: song, difficulty: diff, isMinimal: true)
+            ForEach(course.songs, id:\.self){ courseSong in
+                SongRow(song: courseSong.song!, difficulty: courseSong.difficulty, isMinimal: true)
             }
 
         }

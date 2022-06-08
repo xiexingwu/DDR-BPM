@@ -78,8 +78,8 @@ struct SongRow: View {
     }
     
     private var bpmString : String {
-        let chartID = getChartIDFromUser(song, viewModel)
-        let chart = song.chart[chartID]
+        let chartIndex = getChartIndexFromUser(song, viewModel)
+        let chart = song.chart[chartIndex]
         if isVariableBPMRange(chart.bpmRange){
             return chart.bpmRange + "~" + String(chart.dominantBpm)
         }else{

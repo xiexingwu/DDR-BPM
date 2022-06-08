@@ -14,8 +14,8 @@ extension UIScreen{
 //   static let screenSize = UIScreen.main.bounds.size
 }
 
-func songToBPMPoints(_ song: Song, chartID : Int = 0) -> [CGPoint] {
-    let chart = song.chart[chartID]
+func songToBPMPoints(_ song: Song, chartIndex : Int = 0) -> [CGPoint] {
+    let chart = song.chart[chartIndex]
     var points : [CGPoint] = []
     
     for bpm in chart.bpms {
@@ -38,9 +38,9 @@ func songToBPMPoints(_ song: Song, chartID : Int = 0) -> [CGPoint] {
 
 struct BPMPlot: View {
     var song : Song
-    var chartID : Int = 0
+    var chartIndex : Int = 0
     var data : [CGPoint] {
-        songToBPMPoints(song, chartID: chartID)
+        songToBPMPoints(song, chartIndex: chartIndex)
     }
 
     var xdiv : CGFloat = 15
@@ -308,7 +308,7 @@ struct BPMPlot_Previews: PreviewProvider {
     static var previews: some View {
         VStack{
             Text("Text before")
-            BPMPlot(song: modelData.songs[16], chartID: 3)
+            BPMPlot(song: modelData.songs[16], chartIndex: 3)
                 .environmentObject(modelData)
                 .environmentObject(viewModel)
                 .environmentObject(favorites)
