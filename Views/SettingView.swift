@@ -91,20 +91,20 @@ struct SettingView: View {
                     }
                     
                     /* Clear custom courses */
-                    Button(role: .destructive){
-                        showingClearCoursesConfirmation = true
-                    } label:{
-                        Label("Reset courses", systemImage: "trash")
-                    }
-                    .confirmationDialog(
-                        "Confirm resetting courses?",
-                        isPresented: $showingClearCoursesConfirmation,
-                        titleVisibility: .visible
-                    ){
-                        Button("Yes", role: .destructive){
-                            modelData.resetCourses()
-                        }
-                    }
+//                    Button(role: .destructive){
+//                        showingClearCoursesConfirmation = true
+//                    } label:{
+//                        Label("Reset courses", systemImage: "trash")
+//                    }
+//                    .confirmationDialog(
+//                        "Confirm resetting courses?",
+//                        isPresented: $showingClearCoursesConfirmation,
+//                        titleVisibility: .visible
+//                    ){
+//                        Button("Yes", role: .destructive){
+//                            modelData.resetCourses()
+//                        }
+//                    }
                 }
                 .navigationBarTitle("Settings")
 
