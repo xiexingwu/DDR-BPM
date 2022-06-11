@@ -17,9 +17,9 @@ struct BPMwheel: View {
     @EnvironmentObject var viewModel : ViewModel
 
     @State private var speedMod: Double = 1
-    static private let speedMods = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.25, 2.5, 2.75, 3, 3.25, 3.5, 3.75, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8]
+    static private let speedMods : [Double] = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.25, 2.5, 2.75, 3, 3.25, 3.5, 3.75, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8]
 
-    private func fmtSpeedMod(speedMod : Double) -> String {
+    private func fmtSpeedMod(_ speedMod : Double) -> String {
         let rem = speedMod.truncatingRemainder(dividingBy: 0.5)
         if (rem > 0.01) {
             return String(format: "%.2f", speedMod)
@@ -28,50 +28,67 @@ struct BPMwheel: View {
         }
     }
     
-    
-    private func fmtSpeed(speed: Double) -> String{
-        String(format: "%.0f", speed)
+    private func fmtSpeed(_ speedMod: Double, _ bpm: Int) -> String{
+        let speed = Int(speedMod * Double(bpm))
+        return String(speed)
     }
     
     var wheelHeight : CGFloat = 80
 
+    private var BPMNCols : Int {
+        if isVariableBPMRange(bpmRange){
+            return dominantBPM == nil ? 3 : 4
+        } else {
+            return 2
+        }
+    }
+    
+    private var BPMHeader : [String] {
+        switch BPMNCols{
+        case 2:
+            return ["Mod", "Speed"]
+        case 3:
+            return ["Mod", "Min", "Max"]
+        case 4:
+            return ["Mod", "Mostly", "Min", "Max"]
+        default:
+            return ["Mod", "??"]
+        }
+    }
+    
     private var bpms : [Int] {
         getMinMaxBPM(bpmRange)
     }
     
-    private var wheelMid : (String, Int) {
-        if isVariableBPMRange(bpmRange){
-            if let dom = dominantBPM {
-                if dom != bpms[1] {
-                    return ("Mostly", dom)
-                } else {
-                    return ("Min", bpms[0])
-                }
-            } else {
-                return ("Min", bpms[0])
-            }
-        } else {
-            return ("BPM", bpms[0])
-        }
-    }
-    private var wheelRight : (String, Int?) {
-        if isVariableBPMRange(bpmRange){
-            if let dom = dominantBPM {
-                if dom == bpms[1] {
-                    return ("Mostly", dom)
-                } else {
-                    return ("Max", bpms[1])
-                }
-            } else {
-                return ("Max", bpms[1])
-            }
-        } else {
-            return ("", nil)
+    private func speedModToBPMCols(_ speedMod: Double) -> [String] {
+        let modStr = fmtSpeedMod(speedMod)
+        switch BPMNCols{
+        case 2:
+            return [modStr, fmtSpeed(speedMod, bpms[0])]
+        case 3:
+            return [modStr, fmtSpeed(speedMod, bpms[0]), fmtSpeed(speedMod, bpms[1])]
+        case 4:
+            return [modStr, fmtSpeed(speedMod, dominantBPM!), fmtSpeed(speedMod, bpms[0]), fmtSpeed(speedMod, bpms[1])]
+        default:
+            return [modStr, "??"]
         }
     }
 
     func closestSpeedMod (_ target: Int) -> Double {
-        let speeds = BPMwheel.speedMods.map { Int($0 * Double(dominantBPM ?? (wheelRight.1 ?? wheelMid.1))) }
+        let speeds : [Int] = BPMwheel.speedMods.map {
+            var refBPM : Int = 0
+            switch BPMNCols {
+            case 2:
+                refBPM = bpms[0]
+            case 3:
+                refBPM = bpms[1]
+            case 4:
+                refBPM = dominantBPM!
+            default:
+                refBPM = 0
+            }
+            return Int($0 * Double(refBPM))
+        }
         let closest = speeds.enumerated().min( by: {abs($0.1 - target) < abs($1.1 - target)} )!
         return BPMwheel.speedMods[closest.offset]
     }
@@ -80,17 +97,13 @@ struct BPMwheel: View {
   
         VStack{
             
-                BPMrow(left: "Mod",
-                       mid: wheelMid.0,
-                       right: wheelRight.0)
+            BPMRow(cols: BPMHeader)
                 .frame(maxHeight:30)
                 .clipped()
                 
                 Picker("Speed mod", selection: $speedMod){
                     ForEach(BPMwheel.speedMods, id:\.self){ speedMod in
-                        BPMrow(left: fmtSpeedMod(speedMod:speedMod),
-                               mid: fmtSpeed(speed:speedMod*Double(wheelMid.1)),
-                               right: wheelRight.1 == nil ? "" : fmtSpeed(speed:speedMod*Double(wheelRight.1!)))
+                        BPMRow(cols: speedModToBPMCols(speedMod))
                     }
                 }
                 .pickerStyle(.wheel)
@@ -101,6 +114,7 @@ struct BPMwheel: View {
         .onAppear { speedMod = closestSpeedMod(viewModel.userReadSpeed) }
     }
 }
+
 
 struct BPMSheet: View{
     @State private var bpmRange: String = ""
@@ -156,27 +170,18 @@ struct BPMSheet: View{
     }
 }
 
-struct BPMrow: View{
-    var left: String
-    var mid: String
-    var right: String
+
+
+struct BPMRow: View{
+    var cols: [String]
     
     var body: some View{
         HStack{
-            Text(left)
-                .padding()
-                .frame(maxWidth: .infinity)
-
-            Text(mid)
-                .padding()
-                .frame(maxWidth: .infinity)
-            
-            if !right.isEmpty {
-                Text(right)
+            ForEach(cols, id:\.self){col in
+                Text(col)
                     .padding()
                     .frame(maxWidth: .infinity)
             }
-
         }
     }
 }
@@ -196,7 +201,7 @@ struct BPMwheel_Previews: PreviewProvider {
         .environmentObject(modelData)
         .environmentObject(viewModel)
         .environmentObject(favorites)
-        .previewLayout(.fixed(width: 300, height: 300))
+        .previewLayout(.fixed(width: 400, height: 300))
     }
 }
 
