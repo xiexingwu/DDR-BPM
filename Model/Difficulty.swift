@@ -8,12 +8,30 @@
 import Foundation
 import SwiftUI
 
-enum DifficultyType: String, Equatable, CaseIterable, Codable{
+enum DifficultyType: String, Comparable, Equatable, CaseIterable, Codable{
     case challenge = "Challenge"
     case expert    = "Expert"
     case difficult = "Difficult"
     case basic     = "Basic"
     case beginner  = "Beginner"
+    
+    public static func < (_ a: DifficultyType, _ b: DifficultyType) -> Bool {
+        return Int(a) < Int(b)
+    }
+    private static func Int (_ a: DifficultyType) -> Int {
+        switch a{
+        case .challenge:
+            return 4
+        case .expert:
+            return 3
+        case .difficult:
+            return 2
+        case .basic:
+            return 1
+        case .beginner:
+            return 0
+        }
+    }
 }
 
 func getSongDifficulties(_ song: Song, sd: SDType = .single) -> [Difficulty]{

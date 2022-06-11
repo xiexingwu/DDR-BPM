@@ -78,14 +78,25 @@ private func cleanTitleSearch(_ txt : String) -> String{
 
 
 func getChartIndexFromUser(_ song: Song, _ viewModel: ViewModel) -> Int {
-    return getChartIndexFromDifficulty(song, viewModel.userDiff, viewModel.userSD)
+    let difficulty = viewModel.userDiff
+    let songDifficulties : [DifficultyType] = Difficulty.fromSongSD(song, sd: viewModel.userSD).map {$0.difficulty }
+    if songDifficulties.contains(difficulty){
+        return getChartIndexFromDifficulty(song, viewModel.userDiff, viewModel.userSD)
+    } else {
+        if difficulty > songDifficulties.max()! {
+            viewModel.userDiff = songDifficulties.max()!
+        } else if difficulty < songDifficulties.min()! {
+            viewModel.userDiff = songDifficulties.min()!
+        }
+        return getChartIndexFromUser(song, viewModel)
+    }
 }
 func getChartIndexFromDifficulty(_ song: Song, _ difficulty: DifficultyType, _ sd: SDType = .single) -> Int {
     if (!song.perChart) {
         return 0
     }else{
-        let songDifficulties = Difficulty.fromSongSD(song, sd: sd)
-        return songDifficulties.firstIndex(where: { $0.difficulty == difficulty })!
+        let songDifficulties : [DifficultyType] = Difficulty.fromSongSD(song, sd: sd).map {$0.difficulty }
+            return songDifficulties.firstIndex(where: { $0 == difficulty })!
     }
 }
 
