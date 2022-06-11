@@ -77,6 +77,9 @@ struct GroupedSongView: View {
                 }
             }
             .listStyle(.plain)
+        } else {
+            List{}
+                .listStyle(.plain)
         }
     }
 }

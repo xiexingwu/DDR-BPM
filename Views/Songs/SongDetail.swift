@@ -21,7 +21,11 @@ struct SongDetail: View {
     }
     
     private var chartIndex: Int {
-        getChartIndexFromUser(song, viewModel)
+        if let difficulty = difficulty {
+            return getChartIndexFromDifficulty(song, difficulty, viewModel.userSD)
+        } else {
+            return getChartIndexFromUser(song, viewModel)
+        }
     }
     
     private var chart: Chart {
@@ -99,7 +103,16 @@ struct SongDetail: View {
     
     private var BPMText: some View{
         var bpmStr = chart.bpmRange
-        
+        if hasVariableBPM(chart){
+            let bpms = getMinMaxBPM(bpmStr)
+            if chart.trueMin < bpms[0]{
+                bpmStr = "(\(chart.trueMin)~)" + bpmStr
+            }
+            if chart.trueMax > bpms[bpms.count > 1 ? 1 : 0] {
+                bpmStr = bpmStr + "(~\(chart.trueMax))"
+            }
+        }
+            
         return Text("BPM: \(bpmStr)")
     }
     
@@ -154,7 +167,7 @@ struct SongDetail: View {
                 
                 /* BPM Wheel */
                 VStack{
-                    Text("BPM: \(chart.bpmRange)")
+                    BPMText
                     
                     BPMwheel(bpmRange : song.chart[chartIndex].bpmRange, dominantBPM: song.chart[chartIndex].dominantBpm)
                 }.padding([.top, .bottom], 50)

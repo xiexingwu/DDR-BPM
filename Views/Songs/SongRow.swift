@@ -18,48 +18,53 @@ struct DifficultiesText: View{
             if let difficulty = difficulty {
                 switch difficulty {
                 case .beginner:
-                    Text("\(levels.beginner?.formatted()  ?? "-")")
+                    return Text("\(levels.beginner?.formatted()  ?? "-")")
                         .foregroundColor(difficultyColor(.beginner))
                 case .basic:
-                    Text("\(levels.easy?.formatted()      ?? "-")")
+                    return Text("\(levels.easy?.formatted()      ?? "-")")
                         .foregroundColor(difficultyColor(.basic))
                 case .difficult:
-                    Text("\(levels.medium?.formatted()    ?? "-")")
+                    return Text("\(levels.medium?.formatted()    ?? "-")")
                         .foregroundColor(difficultyColor(.difficult))
                 case .expert:
-                    Text("\(levels.hard?.formatted()      ?? "-")")
+                    return Text("\(levels.hard?.formatted()      ?? "-")")
                         .foregroundColor(difficultyColor(.expert))
                 case .challenge:
-                    Text("\(levels.challenge?.formatted() ?? "-")")
+                    return Text("\(levels.challenge?.formatted() ?? "-")")
                         .foregroundColor(difficultyColor(.challenge))
                 }
             } else {
-                Text("\(levels.beginner?.formatted()  ?? "-")")
-                    .foregroundColor(difficultyColor(.beginner))
+                var txt = Text("")
+                if let level = levels.beginner {
+                    txt = txt + Text(level.formatted())
+                        .foregroundColor(difficultyColor(.beginner))
+                    txt = txt + Text(" . ")
+                }
+                if let level = levels.easy {
+                    txt = txt + Text(level.formatted())
+                        .foregroundColor(difficultyColor(.basic))
+                    txt = txt + Text(" . ")
+                }
+                if let level = levels.medium {
+                    txt = txt + Text(level.formatted())
+                        .foregroundColor(difficultyColor(.difficult))
+                    txt = txt + Text(" . ")
+                }
+                if let level = levels.hard {
+                    txt = txt + Text(level.formatted())
+                        .foregroundColor(difficultyColor(.expert))
+                }
+                if let level = levels.challenge {
+                    txt = txt + Text(levels.hard == nil ? "" : " . ")
+                    txt = txt + Text(level.formatted())
+                        .foregroundColor(difficultyColor(.challenge))
+                }
                 
-                + Text(" . ") +
-                
-                Text("\(levels.easy?.formatted()      ?? "-")")
-                    .foregroundColor(difficultyColor(.basic))
-                
-                + Text(" . ") +
-                
-                Text("\(levels.medium?.formatted()    ?? "-")")
-                    .foregroundColor(difficultyColor(.difficult))
-                
-                + Text(" . ") +
-                
-                Text("\(levels.hard?.formatted()      ?? "-")")
-                    .foregroundColor(difficultyColor(.expert))
-                
-                + Text(" . ") +
-                
-                Text("\(levels.challenge?.formatted() ?? "-")")
-                    .foregroundColor(difficultyColor(.challenge))
+                return txt
                 
             }
         } else {
-            EmptyView()
+            return Text("")
         }
     }
 }
@@ -78,12 +83,13 @@ struct SongRow: View {
     }
     
     private var bpmString : String {
-        let chartIndex = getChartIndexFromUser(song, viewModel)
-        let chart = song.chart[chartIndex]
-        if isVariableBPMRange(chart.bpmRange){
-            return chart.bpmRange + "~" + String(chart.dominantBpm)
-        }else{
-            return chart.bpmRange
+        if !song.perChart {
+            return song.chart[0].bpmRange
+        } else {
+            let minMax = song.chart.map{ getMinMaxBPM( $0.bpmRange ) }
+            let min = minMax.map{$0[0]}.min()!
+            let max = minMax.map{$0.reversed()[0]}.max()!
+            return min == max ? "\(min)" : "\(min)~\(max)"
         }
     }
     
@@ -96,7 +102,7 @@ struct SongRow: View {
                 }
                 Text(song.title)
                 Spacer()
-                Text(song.chart[0].bpmRange)
+                Text(bpmString)
                     .font(.caption)
                     .foregroundColor(.gray)
             }
@@ -113,7 +119,7 @@ struct SongRow: View {
                         HStack{
                             DifficultiesText(song:song, difficulty: difficulty)
                             Spacer()
-                            Text(song.chart[0].bpmRange)
+                            Text(bpmString)
                             //                            Text(song.version)
                                 .font(.caption)
                                 .foregroundColor(.gray)

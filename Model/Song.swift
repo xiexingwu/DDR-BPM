@@ -110,6 +110,10 @@ func filterSongsByName(_ songs : [Song], _ text : String) -> [Song] {
     return filt
 }
 
+func hasVariableBPM(_ chart: Chart) -> Bool{
+    return chart.bpms.count > 1
+}
+
 func isVariableBPMRange(_ bpmRange: String) -> Bool{
     return bpmRange.contains("~")
 }
@@ -234,6 +238,8 @@ struct Levels: Hashable, Codable{
 struct Chart: Hashable, Codable{
     var bpmRange: String
     var dominantBpm: Int
+    var trueMin: Int
+    var trueMax: Int
     var bpms: [BPM]
     var stops: [STOP]
     
