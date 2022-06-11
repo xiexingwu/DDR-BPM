@@ -45,6 +45,14 @@ final class Favorites: ObservableObject {
         save()
     }
     
+    func toggle(_ song: Song){
+        if self.contains(song){
+            self.remove(song)
+        }else{
+            self.add(song)
+        }
+    }
+    
     func save() {
 //        let encoder = JSONEncoder()
 //        if let encoded = try? encoder.encode(songs) {

@@ -135,6 +135,7 @@ struct SongRow: View {
 struct NavigableSongRow: View {
     
     @EnvironmentObject var viewModel : ViewModel
+    @EnvironmentObject var favorites : Favorites
     
     let song : Song
     var difficulty: DifficultyType?
@@ -150,6 +151,9 @@ struct NavigableSongRow: View {
         )
         
         Button{
+            if viewModel.markingFavorites{
+                favorites.toggle(song)
+            }
         } label: {
             SongRow(song: song, difficulty: difficulty)
         }
