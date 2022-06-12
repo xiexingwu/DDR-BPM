@@ -42,7 +42,7 @@ struct CourseList: View {
     var body: some View {
         VStack{
             /* Course Grouping */
-            GroupedCourseView(courseGroups: groupCourses())
+            GroupedCoursesView(courseGroups: groupCourses())
 
             /* Lower-screen filter */
             ToolbarCourseFilter()
@@ -61,7 +61,7 @@ struct CourseList: View {
                     ToolbarMenuSort(sorting: .course)
                     
                 } label:{
-                    Label("Show Menu", systemImage: "line.3.horizontal")
+                    ToolbarHamburger()
                 }
             }
         }
@@ -148,7 +148,7 @@ struct NavigableCourseList: View {
         NavigationView{
             CourseList()
         }
-
+        .navigationViewStyle(StackNavigationViewStyle())
     }
 }
 

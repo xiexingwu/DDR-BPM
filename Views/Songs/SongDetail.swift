@@ -113,7 +113,12 @@ struct SongDetail: View {
             }
         }
             
-        return Text("BPM: \(bpmStr)")
+        return VStack{
+            Text("BPM: \(bpmStr)")
+            if hasVariableBPM(chart){
+                Text("Mostly: \(chart.dominantBpm)")
+            }
+        }
     }
     
     private var BPMPlotSection: some View {
@@ -182,7 +187,6 @@ struct SongDetail: View {
                 
             }
         }
-        
         .toolbar{
             ToolbarItem(placement: .navigationBarTrailing){
                 FavoriteButton(song: song)
@@ -190,9 +194,10 @@ struct SongDetail: View {
             /* Dropdown menu */
             ToolbarItem(placement: .navigationBarTrailing){
                 Menu{
-                    ToolbarMenuSD()
+                    let SDCases = songHasLevelBetween(song, sd: !viewModel.userSD) ? SDType.allCases : [viewModel.userSD]
+                    ToolbarMenuSD(allCases: SDCases)
                 } label:{
-                    Label("Show Menu", systemImage: "line.3.horizontal")
+                    ToolbarHamburger()
                 }
             }
         }

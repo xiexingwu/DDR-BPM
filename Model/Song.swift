@@ -26,6 +26,15 @@ enum SDType : String, Equatable, CaseIterable, Sortable {
     var name: String {
         self.rawValue
     }
+    
+    static prefix func ! (_ a: SDType) -> SDType {
+        switch a{
+        case .single:
+            return .double
+        case .double:
+            return .single
+        }
+    }
 }
 
 enum VersionType : String, Equatable, CaseIterable, Sortable {

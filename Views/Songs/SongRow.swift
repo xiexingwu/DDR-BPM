@@ -145,30 +145,45 @@ struct NavigableSongRow: View {
     
     let song : Song
     var difficulty: DifficultyType?
+    var courseSong : Bool = false
+    var iDet : Int {
+        courseSong ? 1 : 0
+    }
+    
+    var action: ((_ song: Song, _ difficulty: DifficultyType?) -> Void)?
 
     var body: some View{
         let activeSongBinding = Binding(
             get: {
-                viewModel.activeSongDetail == song.id
+                viewModel.activeSongDetail[iDet] == song.id
             },
             set: {
-                viewModel.activeSongDetail = $0 ? song.id : ""
+                viewModel.activeSongDetail[iDet] = $0 ? song.id : ""
             }
         )
         
         Button{
-            if viewModel.markingFavorites{
-                favorites.toggle(song)
+            if let action = action {
+                action(song, difficulty)
+            }else{
+                if viewModel.markingFavorites{
+                    favorites.toggle(song)
+                }
+                else {
+                    viewModel.activeSongDetail[iDet] = song.id
+                }
             }
         } label: {
             SongRow(song: song, difficulty: difficulty)
+                .contentShape(Rectangle())
         }
         .background(
             NavigationLink( destination: SongDetail(song:song, difficulty: difficulty), isActive: activeSongBinding ){
                 EmptyView()
             }
-                .disabled(viewModel.markingFavorites)
+                .disabled(true)
         )
+        .buttonStyle(.plain)
     }
 }
 

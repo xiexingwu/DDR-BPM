@@ -35,7 +35,7 @@ struct SongList: View {
         
         /* Filter levels */
         filt = filt.filter { song in
-            songHasLevelBetween(song, min: viewModel.filterMinLevel, max: viewModel.filterMaxLevel)
+            songHasLevelBetween(song, min: viewModel.filterMinLevel, max: viewModel.filterMaxLevel, sd: viewModel.userSD)
         }
         
         return filt
@@ -129,10 +129,11 @@ struct SongList: View {
         VStack{
             
             /* Song Grouping */
-            GroupedSongView()
+            GroupedSongsView()
             
             /* Lower-screen filter */
             ToolbarSongFilter()
+                .frame(minHeight:30)
                 .onChange(of: viewModel.filterFavorites) { _ in groupSongs() }
                 .onChange(of: viewModel.filterMinLevel) { _ in groupSongs() }
                 .onChange(of: viewModel.filterMaxLevel) { _ in groupSongs() }
@@ -155,7 +156,7 @@ struct SongList: View {
                         .onChange(of: viewModel.userSongSort) { _ in groupSongs() }
                     
                 } label:{
-                    Label("Show Menu", systemImage: "line.3.horizontal")
+                    ToolbarHamburger()
                 }
             }
         }
@@ -198,7 +199,7 @@ struct NavigableSongList: View {
             viewModel.searchText = searchText
             let searchedSongs = filteredSongs.filter{$0.titletranslit.lowercased() == searchText.lowercased() || $0.title.lowercased() == searchText.lowercased()}
             if searchedSongs.count == 1 {
-                viewModel.activeSongDetail = searchedSongs[0].id
+                viewModel.activeSongDetail[0] = searchedSongs[0].id
             }
             dismissSearch()
         }

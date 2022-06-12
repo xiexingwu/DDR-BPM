@@ -13,7 +13,8 @@ class ViewModel : ObservableObject{
     /* Search util */
     @Published var searchText : String = ""
     @Published var songGroups : [SongGroup] = []
-    @Published var activeSongDetail : String = "" // Set this to open a Song Detail
+    @Published var activeSongDetail : [String] = ["", ""] // Set this to open a Song Detail (in Song tab and in Course tab)
+    @Published var activeCourseDetail : String = "" // Set this to open a Course Detail
 
     /* User settings */
     @AppStorage("userReadSpeed") var userReadSpeed : Int = 600

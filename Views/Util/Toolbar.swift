@@ -7,6 +7,13 @@
 
 import SwiftUI
 
+struct ToolbarHamburger: View{
+    var body: some View {
+        Label("Show Menu", systemImage: "line.3.horizontal")
+            .padding()
+            .contentShape(Rectangle())
+    }
+}
 
 struct ToolbarMenuSort: View {
     @EnvironmentObject var viewModel: ViewModel
@@ -40,10 +47,12 @@ struct ToolbarMenuSort: View {
 struct ToolbarMenuSD: View {
     @EnvironmentObject var viewModel: ViewModel
     
+    var allCases: [SDType] = SDType.allCases
+    
     var body: some View {
         Picker(selection: $viewModel.userSD,
                label:Text("\(viewModel.userSD.rawValue)")){
-            ForEach(SDType.allCases, id: \.self){ sd in
+            ForEach(allCases, id: \.self){ sd in
                 Text(sd.rawValue)
             }
         }
@@ -59,6 +68,7 @@ struct ToolbarMenuMarkFav: View{
             viewModel.markingFavorites.toggle()
         } label:{
             Label("Mark favs", systemImage: viewModel.markingFavorites ? "star.fill" : "star")
+                .contentShape(Rectangle())
         }
     }
 }

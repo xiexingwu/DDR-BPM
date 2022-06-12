@@ -39,12 +39,14 @@ struct CourseDetail: View {
                 Text("Level \(course.level)")
             }
             
-            List{
+            
+            VStack{
                 ForEach(course.songs, id:\.self){ courseSong in
-                    NavigableSongRow(song: courseSong.song!, difficulty: courseSong.difficulty)
+                    let song = courseSong.song!
+
+                    NavigableSongRow(song: song, difficulty: courseSong.difficulty, courseSong: true)
                 }
             }
-            .listStyle(.plain)
 
             BPMwheel(bpmRange: "\(minMaxBPM.first!)~\(minMaxBPM.last!)")
             
