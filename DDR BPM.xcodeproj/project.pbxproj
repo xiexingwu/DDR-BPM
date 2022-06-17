@@ -27,6 +27,8 @@
 		3269EA112820FDC4002C96CB /* ModelData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3269EA102820FDC4002C96CB /* ModelData.swift */; };
 		3269EA132820FDF7002C96CB /* Song.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3269EA122820FDF7002C96CB /* Song.swift */; };
 		3269EA18282108AF002C96CB /* SongRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3269EA17282108AF002C96CB /* SongRow.swift */; };
+		32971DE9285B872300FD438E /* Downloader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32971DE8285B872300FD438E /* Downloader.swift */; };
+		32971DEC285C227800FD438E /* Zip in Frameworks */ = {isa = PBXBuildFile; productRef = 32971DEB285C227800FD438E /* Zip */; };
 		32B14F8D2821588200E4AC86 /* FavoriteButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32B14F8C2821588200E4AC86 /* FavoriteButton.swift */; };
 		32B14F8F282158B600E4AC86 /* SongList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32B14F8E282158B600E4AC86 /* SongList.swift */; };
 		32B14F9128215A6800E4AC86 /* SongDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32B14F9028215A6800E4AC86 /* SongDetail.swift */; };
@@ -80,6 +82,7 @@
 		3269EA102820FDC4002C96CB /* ModelData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelData.swift; sourceTree = "<group>"; };
 		3269EA122820FDF7002C96CB /* Song.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Song.swift; sourceTree = "<group>"; };
 		3269EA17282108AF002C96CB /* SongRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SongRow.swift; sourceTree = "<group>"; };
+		32971DE8285B872300FD438E /* Downloader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Downloader.swift; sourceTree = "<group>"; };
 		32B14F8C2821588200E4AC86 /* FavoriteButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoriteButton.swift; sourceTree = "<group>"; };
 		32B14F8E282158B600E4AC86 /* SongList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SongList.swift; sourceTree = "<group>"; };
 		32B14F9028215A6800E4AC86 /* SongDetail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SongDetail.swift; sourceTree = "<group>"; };
@@ -98,6 +101,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				32971DEC285C227800FD438E /* Zip in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -181,9 +185,9 @@
 				32FFD1932826EB5C0066B3F8 /* Plot */,
 				3269EA1628210896002C96CB /* Songs */,
 				32B14F8B2821587400E4AC86 /* Util */,
-				324E0E4A2828B4A000B7AA15 /* SettingView.swift */,
 				32FDB2C12822495500401062 /* Difficulty */,
 				32230728284346BB0009DBF1 /* RandomView.swift */,
+				324E0E4A2828B4A000B7AA15 /* SettingView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -197,6 +201,7 @@
 				32FDB2BF282248CC00401062 /* Difficulty.swift */,
 				32FDB2C42823CE4400401062 /* Favorites.swift */,
 				32FFD18D2824CEB90066B3F8 /* ViewModel.swift */,
+				32971DE8285B872300FD438E /* Downloader.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -255,6 +260,7 @@
 			);
 			name = "DDR BPM";
 			packageProductDependencies = (
+				32971DEB285C227800FD438E /* Zip */,
 			);
 			productName = "DDR BPM";
 			productReference = 3269E9DE2820F8ED002C96CB /* DDR BPM.app */;
@@ -329,6 +335,7 @@
 			);
 			mainGroup = 3269E9D52820F8ED002C96CB;
 			packageReferences = (
+				32971DEA285C227800FD438E /* XCRemoteSwiftPackageReference "Zip" */,
 			);
 			productRefGroup = 3269E9DF2820F8ED002C96CB /* Products */;
 			projectDirPath = "";
@@ -397,6 +404,7 @@
 				3269E9E42820F8ED002C96CB /* SongView.swift in Sources */,
 				3269EA132820FDF7002C96CB /* Song.swift in Sources */,
 				3269E9E22820F8ED002C96CB /* DDR_BPMApp.swift in Sources */,
+				32971DE9285B872300FD438E /* Downloader.swift in Sources */,
 				32FDB2BE2822365B00401062 /* DifficultySelector.swift in Sources */,
 				32FDB2C52823CE4400401062 /* Favorites.swift in Sources */,
 				32230727283CCC1D0009DBF1 /* Toolbar.swift in Sources */,
@@ -727,6 +735,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		32971DEA285C227800FD438E /* XCRemoteSwiftPackageReference "Zip" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/marmelroy/Zip";
+			requirement = {
+				kind = upToNextMinorVersion;
+				minimumVersion = 2.1.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		32971DEB285C227800FD438E /* Zip */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 32971DEA285C227800FD438E /* XCRemoteSwiftPackageReference "Zip" */;
+			productName = Zip;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 3269E9D62820F8ED002C96CB /* Project object */;
 }

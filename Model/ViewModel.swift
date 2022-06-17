@@ -34,5 +34,14 @@ class ViewModel : ObservableObject{
     @AppStorage("userShowLIFE4Courses") var userShowLIFE4Courses : Bool = true
     @AppStorage("userShowCustomCourses") var userShowCustomCourses : Bool = true
 
+    @AppStorage("jacketsDownloaded") var jacketsDownloaded : Bool = false
+    @Published var downloadProgress : Double = -1
+    @Published var downloadProgressText : String = ""
+    @Published var downloadStatus : DownloadStatus = .none
 }
 
+enum DownloadStatus {
+    case none
+    case fail
+    case success
+}

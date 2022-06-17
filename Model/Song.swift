@@ -188,6 +188,10 @@ struct SongGroup: Identifiable {//, ObservableObject {
 }
 
 struct Song: Hashable, Codable, Identifiable {
+    enum SongError: Error {
+            case missingFile
+        }
+
     var name: String
     var title: String
     var titletranslit: String
@@ -201,8 +205,19 @@ struct Song: Hashable, Codable, Identifiable {
     
     
     /* Derived & constant fields */
-    var jacket: Image{
-        Image((resources.jacket as NSString).deletingPathExtension)
+    var jacket: Image? {
+//        Image((resources.jacket as NSString).deletingPathExtension)
+        do {
+            let documentsURL = try FileManager.default.url(for: .documentDirectory,
+                                                           in: .userDomainMask,
+                                                           appropriateFor: nil,
+                                                           create: false)
+            let fname = documentsURL.appendingPathComponent("jackets/\(resources.jacket)")
+            guard let image = UIImage(contentsOfFile: fname.path) else { throw SongError.missingFile }
+            return Image(uiImage: image)
+        } catch {
+            return nil
+        }
     }
     
     var id: String{

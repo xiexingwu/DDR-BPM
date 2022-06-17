@@ -48,9 +48,11 @@ struct SongDetail: View {
             
             HStack{
                 /* Jacket */
-                song.jacket
-                    .resizable()
-                    .frame(width:80, height:80)
+                if let jacket = song.jacket{
+                    jacket
+                        .resizable()
+                        .frame(width:80, height:80)
+                }
                 
                 Spacer()
                 

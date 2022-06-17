@@ -6,6 +6,15 @@
 //
 
 import SwiftUI
+extension String{
+    static let characterSet = CharacterSet(charactersIn:
+       "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-=!@#$%^&*()_+,./<>?;':\"[]{}\\| "
+    )
+    func containsSpecialCharacter() -> Bool {
+        return self.rangeOfCharacter(from: String.characterSet.inverted) != nil
+    }
+
+}
 
 struct DifficultiesText: View{
     @EnvironmentObject var viewModel: ViewModel
@@ -109,18 +118,38 @@ struct SongRow: View {
         }else{
             ZStack(alignment:.topLeading){
                 HStack{
-                    song.jacket
-                        .resizable()
-                        .frame(width:50,height:50)
+                    if let jacket = song.jacket {
+                        jacket
+                            .resizable()
+                            .frame(width:50,height:50)
+                    } else {
+                        Spacer()
+                            .frame(width:15)
+                    }
                     
                     VStack(alignment: .leading){
-                        Text(song.title)
+                        HStack{
+                            VStack{
+                                Text(song.title)
+                                
+                                if song.jacket == nil && song.title.containsSpecialCharacter() {
+                                    Text(song.titletranslit)
+                                        .font(.caption)
+                                        .foregroundColor(.gray)
+                                }
+                            }
+                            Spacer()
+                            
+                            Text(song.version[song.version.firstIndex(of: " ")!...])
+                                .font(.caption)
+                                .foregroundColor(.gray)
+                            
+                        }
                         
                         HStack{
                             DifficultiesText(song:song, difficulty: difficulty)
                             Spacer()
                             Text(bpmString)
-                            //                            Text(song.version)
                                 .font(.caption)
                                 .foregroundColor(.gray)
                         }
