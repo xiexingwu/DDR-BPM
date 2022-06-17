@@ -27,6 +27,8 @@ class ViewModel : ObservableObject{
     @AppStorage("userSD") var userSD : SDType = .single
     @AppStorage("userMinLevel") var filterMinLevel : Int = 1
     @AppStorage("userMaxLevel") var filterMaxLevel : Int = 19
+    @AppStorage("userRandomMin") var randomMinLevel : Int = 1
+    @AppStorage("userRandomMax") var randomMaxLevel : Int = 19
 
     /* Course filters */
     @AppStorage("userCourseSort") var userCourseSort: SortType = .version

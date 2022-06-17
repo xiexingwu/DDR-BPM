@@ -243,19 +243,6 @@ struct AssetsButton : View {
                 }
             }
         }
-        
-        
     }
 }
 
-struct SettingView_Previews: PreviewProvider {
-    static let favorites = Favorites()
-    static let viewModel = ViewModel()
-    static let modelData = ModelData()
-    static var previews: some View {
-        SettingView()
-            .environmentObject(modelData)
-            .environmentObject(viewModel)
-            .environmentObject(favorites)
-    }
-}
