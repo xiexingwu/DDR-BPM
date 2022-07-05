@@ -47,7 +47,7 @@ struct CourseList: View {
             /* Lower-screen filter */
             ToolbarCourseFilter()
         }
-        .navigationBarTitle("Courses")
+        .navigationTitle("Courses")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar{
             /* Dropdown menu */

@@ -6,22 +6,19 @@
 //
 
 import Foundation
-import SwiftUI
 import Zip
-import CryptoKit
-
-typealias HashDigest = Insecure.SHA1Digest
+import SwiftUI
 
 private let GITHUB_TOKEN = "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"
-private let JACKETS_URL = "https://github.com/xiexingwu/DDR-BPM-assets/releases/download/v1.0/jackets.zip"
 
 private let GITHUB_RAW = "https://raw.githubusercontent.com/xiexingwu/DDR-BPM-assets/main/"
-private func GITHUB_RAW_FILE (_ filename : String) -> String { GITHUB_RAW + filename }
+private func GITHUB_RAW_SONG (_ songName : String) -> String { GITHUB_RAW + "data/" + songName + ".json" }
+private func GITHUB_RAW_JACKET (_ songName : String) -> String { GITHUB_RAW + "jackets/" + songName + "-jacket.png" }
 
 private let GITHUB_LATEST = "https://github.com/xiexingwu/DDR-BPM-assets/releases/download/latest/"
 
 private let ALL_SONGS_FILE = "all_songs.txt"
-private let COURSES_FILE = "courses.txt"
+private let COURSES_FILE = "courses.json"
 private let HASHED_SONGS_FILE = "hashed_songs.txt"
 private let HASHED_JACKETS_FILE = "hashed_jackets.txt"
 private let HASHED_COURSES_FILE = "hashed_courses.txt"
@@ -45,6 +42,8 @@ class AssetsDownloader: NSObject, ObservableObject, URLSessionTaskDelegate {
     private var viewModel : ViewModel?
     private var modelData : ModelData?
     
+    static let shared = AssetsDownloader()
+    
     func linkViewModel(_ viewModel: ViewModel) {
         self.viewModel = viewModel
     }
@@ -52,10 +51,33 @@ class AssetsDownloader: NSObject, ObservableObject, URLSessionTaskDelegate {
         self.modelData = modelData
     }
 
-    private var missingSongs: [String] = []
-    private var obsoleteSongs: [String] = []
-    private var updateCourses: Bool = false
+    /* Foreground updating for singular assets */
+    var missingSongs: [String] = []
+    var missingJackets: [String] = []
+    var obsoleteSongs: [String] = []
+    var changedCourses: Bool = false
 
+    func defaultGithubDownload(_ urlString: String) async throws -> (URL, URLResponse) {
+        enum URLErrors : Error {
+            case badURL
+        }
+        
+        guard let url = URL(string: urlString.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")
+        else {
+            defaultLogger.error("==========Failed to make url to \(urlString)")
+            throw URLErrors.badURL
+        }
+        
+        var request = URLRequest(url: url)
+
+        request.httpMethod = "GET"
+        request.setValue("token \(GITHUB_TOKEN)", forHTTPHeaderField: "Authorization")
+        
+        defaultLogger.debug("downloading: \(urlString)")
+        return try await URLSession.shared.download(for: request)
+    }
+
+    /* Background downloader for jackets */
     private var backgroundCompletionHandler : (() -> Void)?
 
     private lazy var session: URLSession = {
@@ -64,8 +86,387 @@ class AssetsDownloader: NSObject, ObservableObject, URLSessionTaskDelegate {
         return URLSession(configuration: config, delegate: self, delegateQueue: nil)
     }()
 
+}
+
+/* Update assets - foreground one-by-one */
+extension AssetsDownloader {
+    
+    func updateAssets(fix: Bool = false) async {
+        do {
+            if modelData == nil {
+                throw ModelError.missingModelData
+            }
+            if viewModel == nil {
+                throw ModelError.missingViewModel
+            }
+            
+            // Start updates
+            if fix{
+                DispatchQueue.main.async{
+                    self.viewModel!.assetsStatus = .progressing
+                }
+            } else {
+                DispatchQueue.main.async{
+                    self.viewModel!.updateStatus = .progressing
+                }
+            }
+            
+            var success : Bool = true
+            if changedCourses{
+                success = await updateCourses() && success
+            }
+            
+            for songName in missingSongs {
+                success = await downloadRawSong(songName) && success
+                if viewModel!.jacketsDownloaded {
+                    success = await downloadRawJacket(songName) && success
+                }
+            }
+            
+            if viewModel!.jacketsDownloaded {
+                for songName in missingJackets {
+                    success = await downloadRawJacket(songName) && success
+                }
+            }
+            
+            for songName in obsoleteSongs {
+                success = deleteSong(songName) && success
+            }
+
+            // Finalise updates
+            self.modelData!.loadData()
+            switch (fix, success){
+            case (true, true):
+                DispatchQueue.main.async{
+                    self.viewModel!.assetsStatus = .success
+                }
+            case (true, false):
+                DispatchQueue.main.async{
+                    self.viewModel!.assetsStatus = .fail
+                }
+            case (false, true):
+                DispatchQueue.main.async{
+                    self.viewModel!.updateStatus = .success
+                }
+            case (false, false):
+                DispatchQueue.main.async{
+                    self.viewModel!.updateStatus = .fail
+                }
+            }
+        }
+        catch ModelError.missingViewModel, ModelError.missingModelData {
+            defaultLogger.error("Missing ViewModel or ModelData")
+        }
+        catch {
+            defaultLogger.error("Failed to update Assets.")
+        }
+
+    }
+    
+    func downloadRawSong(_ songName: String) async -> Bool {
+        do {
+            // Download files
+            let (url, response) = try await defaultGithubDownload(GITHUB_RAW_SONG(songName))
+            if !responseSucceeded(response) {
+                throw GitHubError.failedGet
+            }
+            
+            // Move files
+            let songURL = SONG_FILE_URL(songName)
+            if FileManager.default.fileExists(atPath: songURL.path){
+                try FileManager.default.removeItem(at: songURL)
+            }
+
+            try FileManager.default.moveItem(at: url, to: songURL)
+            
+            return true
+        }
+        catch GitHubError.failedGet {
+            defaultLogger.error("Failed to download file: \(GITHUB_RAW_SONG(songName))")
+            return false
+        }
+        catch {
+            defaultLogger.error("Failed to move file: \(songName).json")
+            return false
+        }
+    }
+    
+    func downloadRawJacket(_ songName: String) async -> Bool {
+        do {
+            // Download files
+            let (url, response) = try await defaultGithubDownload(GITHUB_RAW_JACKET(songName))
+            if !responseSucceeded(response) {
+                throw GitHubError.failedGet
+            }
+            
+            // Move files
+            let jacketURL = JACKET_FILE_URL(songName)
+            if FileManager.default.fileExists(atPath: jacketURL.path){
+                try FileManager.default.removeItem(at: jacketURL)
+            }
+            try FileManager.default.moveItem(at: url, to: jacketURL)
+            
+            // if called due to missingSongs, remove from missingJackets to avoid double download
+            if let i = missingJackets.firstIndex(where: {$0 == songName}) {
+                missingJackets.remove(at: i)
+            }
+            
+            return true
+        }
+        catch GitHubError.failedGet {
+            defaultLogger.error("Failed to download file: \(GITHUB_RAW_JACKET(songName))")
+            return false
+        }
+        catch {
+            defaultLogger.error("Failed to move file: \(songName)-jacket.png: \(error.localizedDescription)")
+//            defaultLogger.error("\(error.localizedDescription)")
+//            print("error:\(error)")
+            return false
+        }
+        
+    }
+    
+    func updateCourses() async -> Bool {
+        do {
+            // Download files
+            let (url, response) = try await defaultGithubDownload(GITHUB_LATEST + COURSES_FILE)
+            if !responseSucceeded(response) {
+                throw GitHubError.failedGet
+            }
+            
+            // Move files
+            if FileManager.default.fileExists(atPath: COURSES_FILE_URL.path){
+                try FileManager.default.removeItem(at: COURSES_FILE_URL)
+            }
+            try FileManager.default.moveItem(at: url, to: COURSES_FILE_URL)
+            
+            return true
+        }
+        catch GitHubError.failedGet {
+            defaultLogger.error("Failed to download courses file")
+            return false
+        }
+        catch {
+            defaultLogger.error("Failed to update courses.")
+            return false
+        }
+    }
+
+    func deleteSong(_ songName: String) -> Bool {
+        do {
+            try FileManager.default.removeItem(at: SONG_FILE_URL(songName))
+            if viewModel!.jacketsDownloaded
+                && FileManager.default.fileExists(atPath: JACKET_FILE_URL(songName).path){
+                try FileManager.default.removeItem(at: JACKET_FILE_URL(songName))
+            }
+            return true
+        } catch {
+            defaultLogger.error("Failed to delete song: \(songName)")
+            return false
+        }
+    }
+    
+}
+
+/* Update checking */
+extension AssetsDownloader {
+    
+    func checkUpdates(checkHashes: Bool = false) async {
+        do {
+            if modelData == nil {
+                throw ModelError.missingModelData
+            }
+            if viewModel == nil {
+                throw ModelError.missingViewModel
+            }
+            
+            if checkHashes{
+                DispatchQueue.main.async{
+                    self.viewModel!.assetsStatus = .checking
+                }
+            } else {
+                DispatchQueue.main.async{
+                    self.viewModel!.updateStatus = .checking
+                }
+            }
+
+            var needUpdate = false
+
+            needUpdate = try await checkSongs(checkHashes: checkHashes) || needUpdate
+            if checkHashes && viewModel!.jacketsDownloaded{
+                needUpdate = try await checkJackets() || needUpdate
+            }
+            needUpdate = try await checkCourses() || needUpdate
+            
+            switch (checkHashes, needUpdate){
+            case (true, true):
+                DispatchQueue.main.async{
+                    self.viewModel!.assetsStatus = .available
+                    self.viewModel!.lastUpdateDate = Int(Date())
+                }
+            case (true, false):
+                DispatchQueue.main.async{
+                    self.viewModel!.assetsStatus = .success
+                }
+            case (false, true):
+                DispatchQueue.main.async{
+                    self.viewModel!.updateStatus = .available
+                    self.viewModel!.lastUpdateDate = Int(Date())
+                }
+            case (false, false):
+                DispatchQueue.main.async{
+                    self.viewModel!.updateStatus = .success
+                }
+            }
+            
+        }
+        catch ModelError.missingViewModel, ModelError.missingModelData {
+            defaultLogger.error("Missing ViewModel or ModelData")
+        }
+        catch {
+            defaultLogger.error("Failed to check updates")
+            DispatchQueue.main.async {
+                self.viewModel!.updateStatus = .fail
+            }
+        }
+    }
+    
+
+}
+
+/* File verification */
+extension AssetsDownloader {
+
+    private func checkSongs(checkHashes: Bool = false) async throws -> Bool {
+        // Download files
+        let (allSongsURL, allSongsResponse) = try await defaultGithubDownload(GITHUB_LATEST + ALL_SONGS_FILE)
+        let (hashedSongsURL, hashedSongsResponse) = try await defaultGithubDownload(GITHUB_LATEST + HASHED_SONGS_FILE)
+        if !responseSucceeded(allSongsResponse) || !responseSucceeded(hashedSongsResponse){
+            throw GitHubError.failedGet
+        }
+        let allSongs = try readLines(contentsOf: allSongsURL)
+        let hashedSongs = try readLines(contentsOf: hashedSongsURL)
+        
+        // Compare hashes
+        missingSongs = []
+        for (songName, songHash) in zip(allSongs, hashedSongs) {
+            // missing song
+            if !FileManager.default.fileExists(atPath: SONG_FILE_URL(songName).path) {
+//                defaultLogger.debug("Couldn't find \(SONG_FILE_URL(songName).path)")
+                defaultLogger.info("adding missing song: \(songName)")
+                missingSongs.append(songName)
+                continue
+            }
+            
+            // incorrect hash
+            if checkHashes{
+                let fileHash = try getFileHash(SONG_FILE_URL(songName))
+                    .description
+                    .components(separatedBy: " ")
+                    .last!
+                if fileHash != songHash {
+                    defaultLogger.info("Hash mismatch for \(songName):")
+//                    defaultLogger.debug("Hashes:\n\tlocal: \(fileHash)\n\tremote: \(songHash)")
+                    missingSongs.append(songName)
+                }
+            }
+        }
+        
+        // Check removed songs
+        obsoleteSongs = []
+        if let songFiles = FileManager.default.enumerator(at: SONGS_FOLDER_URL, includingPropertiesForKeys: nil) {
+            for case let songFile as URL in songFiles {
+                let songName = songFile
+                    .lastPathComponent
+                    .components(separatedBy: ".json")
+                    .first!
+                if !allSongs.contains(songName) {
+                    defaultLogger.info("Obsolete song: \(songName)")
+                    obsoleteSongs.append(songName)
+                }
+            }
+        } else {
+            defaultLogger.error("Failed to find \(SONGS_FOLDER_URL) when checking for obsolete songs")
+        }
+        
+        return (missingSongs.count + obsoleteSongs.count) > 0
+    }
+    
+    
+    
+    private func checkJackets() async throws -> Bool {
+        // Download files
+        let (allSongsURL, allSongsResponse) = try await defaultGithubDownload(GITHUB_LATEST + ALL_SONGS_FILE)
+        let (hashedJacketsURL, hashedJacketsResponse) = try await defaultGithubDownload(GITHUB_LATEST + HASHED_JACKETS_FILE)
+        if !responseSucceeded(allSongsResponse) || !responseSucceeded(hashedJacketsResponse){
+            throw GitHubError.failedGet
+        }
+        let allSongs = try readLines(contentsOf: allSongsURL)
+        let hashedJackets = try readLines(contentsOf: hashedJacketsURL)
+        
+        // Compare hashes
+        missingJackets = []
+        for (songName, jacketHash) in zip(allSongs, hashedJackets) {
+            // missing jacket
+            if !FileManager.default.fileExists(atPath: JACKET_FILE_URL(songName).path) {
+//                defaultLogger.debug("Couldn't find \(JACKET_FILE_URL(songName).path)")
+                defaultLogger.info("adding missing jacket: \(songName)")
+                missingJackets.append(songName)
+                continue
+            }
+            
+            // incorrect hash
+            let fileHash = try getFileHash(JACKET_FILE_URL(songName))
+                .description
+                .components(separatedBy: " ")
+                .last!
+            if fileHash != jacketHash {
+                defaultLogger.info("Hash mismatch for \(songName) jacket:")
+//                defaultLogger.debug("Hashes:\n\tlocal: \(fileHash)\n\tremote: \(jacketHash)")
+                missingJackets.append(songName)
+            }
+        }
+        
+        return missingJackets.count > 0
+    }
+    
+    
+    private func checkCourses() async throws -> Bool {
+        // Download files
+        let (hashedCoursesURL, hashedCoursesResponse) = try await defaultGithubDownload(GITHUB_LATEST + HASHED_COURSES_FILE)
+        if !responseSucceeded(hashedCoursesResponse) {
+            throw GitHubError.failedGet
+        }
+        
+        // Compare hashes
+        let hashedCourses = try readLines(contentsOf: hashedCoursesURL)
+        if hashedCourses.count != 1 {
+            defaultLogger.error("Downloaded \(HASHED_COURSES_FILE) has more than one hashes")
+            throw FileError.fileCorrupted
+        }
+        
+        let fileHash = try getFileHash(COURSES_FILE_URL)
+            .description
+            .components(separatedBy: " ")
+            .last!
+        
+        changedCourses = fileHash != hashedCourses[0]
+
+        if changedCourses {
+            defaultLogger.info("Hash mismatch for courses:")
+            defaultLogger.debug("Hashes:\n\tlocal: \(fileHash)\n\tremote: \(hashedCourses[0])")
+        }
+        
+        return changedCourses
+    }
+    
+}
+
+
+/* Background downloader for jackets */
+extension AssetsDownloader {
     func downloadJacketsZip(){
-        guard let url = URL(string: JACKETS_URL) else { return }
+        guard let url = URL(string: GITHUB_LATEST + JACKETS_ZIP) else { return }
         var request = URLRequest(url: url)
 
         request.httpMethod = "GET"
@@ -84,241 +485,9 @@ class AssetsDownloader: NSObject, ObservableObject, URLSessionTaskDelegate {
         viewModel?.downloadProgress = 0
     }
 
-    private func saveTmpFile(_ filename: String) -> ( (URL?, URLResponse?, Error?) -> Void ) {{
-        urlOrNil, responseOrNil, errorOrNil in
-        // check for and handle errors:
-        // * errorOrNil should be nil
-        // * responseOrNil should be an HTTPURLResponse with statusCode in 200..<299
-        
-        guard let fileURL = urlOrNil else { return }
-        do {
-            let tmpURL = FileManager.default.temporaryDirectory
-            let savedURL = tmpURL.appendingPathComponent(filename)
-            try FileManager.default.moveItem(at: fileURL, to: savedURL)
-        } catch {
-            print ("file to move file: \(error)")
-        }
-    }}
-    
-//    func defaultGithubDownloadTask(_ urlString: String, completionHandler: @escaping (URL?, URLResponse?, Error?) -> Void) throws {
-//        enum URLErrors : Error {
-//            case badURL
-//        }
-//
-//        guard let url = URL(string: urlString) else {
-//            print("==========Failed to make url to \(urlString)")
-//            throw URLErrors.badURL
-//        }
-//
-//        var request = URLRequest(url: url)
-//
-//        request.httpMethod = "GET"
-//        request.setValue("token \(GITHUB_TOKEN)", forHTTPHeaderField: "Authorization")
-//
-//        let downloadTask = URLSession.shared.downloadTask(with: request) { url, response, error in completionHandler(url, response, error) }
-//        downloadTask.taskDescription = url.lastPathComponent
-//
-//        downloadTask.resume()
-//    }
-    
-    func defaultGithubDownload(_ urlString: String) async throws -> (URL, URLResponse) {
-        enum URLErrors : Error {
-            case badURL
-        }
-        
-        guard let url = URL(string: urlString) else {
-            defaultLogger.error("==========Failed to make url to \(urlString)")
-            throw URLErrors.badURL
-        }
-        
-        var request = URLRequest(url: url)
-
-        request.httpMethod = "GET"
-        request.setValue("token \(GITHUB_TOKEN)", forHTTPHeaderField: "Authorization")
-        
-        return try await URLSession.shared.download(for: request)
-    }
-    
-    func responseSucceeded(_ response: URLResponse) -> Bool {
-        if let statusCode = (response as? HTTPURLResponse)?.statusCode {
-            return statusCode >= 200 && statusCode <= 299
-        } else {
-            return false
-        }
-    }
-    
-    func readLines(contentsOf url: URL) throws -> [String] {
-        enum ReadError: Error{
-            case failedRead
-        }
-        do {
-            let data = try String(contentsOf: url, encoding: .utf8)
-            var lines = data.components(separatedBy: "\n")
-            if let isEmpty = lines.last?.isEmpty {
-                if isEmpty { lines.removeLast() }
-            }
-            return lines
-        } catch {
-            defaultLogger.error("Failed to readLines of \(String(describing: url))")
-            throw ReadError.failedRead
-        }
-        
-    }
-    
-    func checkUpdates() async {
-        do {
-            if modelData == nil {
-                throw ModelError.missingModelData
-            }
-            if viewModel == nil {
-                throw ModelError.missingViewModel
-            }
-            
-            var needUpdate = false
-
-            needUpdate = try await checkSongs() || needUpdate
-            needUpdate = try await checkCourses() || needUpdate
-            
-            viewModel!.updateStatus = needUpdate ? .available : .success
-            
-        }
-        catch ModelError.missingViewModel, ModelError.missingModelData {
-            defaultLogger.error("Missing ViewModel or ModelData")
-        }
-        catch {
-            defaultLogger.error("Failed to check updates")
-            viewModel?.updateStatus = .fail
-        }
-
-    }
-
-    private func checkSongs() async throws -> Bool {
-        // Download files
-        let (allSongsURL, allSongsResponse) = try await defaultGithubDownload(GITHUB_LATEST + ALL_SONGS_FILE)
-        let (hashedSongsURL, hashedSongsResponse) = try await defaultGithubDownload(GITHUB_LATEST + HASHED_SONGS_FILE)
-        if !responseSucceeded(allSongsResponse) || !responseSucceeded(hashedSongsResponse){
-            throw GitHubError.failedGet
-        }
-        let allSongs = try readLines(contentsOf: allSongsURL)
-        let hashedSongs = try readLines(contentsOf: hashedSongsURL)
-        
-        // Compare hashes
-        missingSongs = []
-        for (songName, songHash) in zip(allSongs, hashedSongs) {
-            // missing song
-            if getSongIndexByName(songName, modelData!.songs) == nil {
-                defaultLogger.info("adding missing song: \(songName)")
-                missingSongs.append(songName)
-                continue
-            }
-            
-            // incorrect hash
-            let fileHash = getFileHash(appDataFolder + "/\(songName).json").description.components(separatedBy: " ").last!
-            if fileHash != songHash {
-                defaultLogger.info("Hash mismatch for \(songName):\n\tlocal: \(fileHash)\n\tsource: \(songHash)")
-                missingSongs.append(songName)
-            }
-        }
-        
-        // Check removed songs
-        obsoleteSongs = []
-        for song in modelData!.songs {
-            if !allSongs.contains(song.name) {
-                obsoleteSongs.append(song.name)
-            }
-        }
-        
-        return (missingSongs.count + obsoleteSongs.count) > 0
-    }
-    
-    private func checkCourses() async throws -> Bool {
-        // Download files
-        let (hashedCoursesURL, hashedCoursesResponse) = try await defaultGithubDownload(GITHUB_LATEST + HASHED_COURSES_FILE)
-        if !responseSucceeded(hashedCoursesResponse) {
-            throw GitHubError.failedGet
-        }
-        
-        // Compare hashes
-        let hashedCourses = try readLines(contentsOf: hashedCoursesURL)
-        let fileHash = getFileHash(appCoursesFile).description.components(separatedBy: " ").last!
-        
-        updateCourses = fileHash == hashedCourses[0]
-        return updateCourses
-    }
-    
-    func fixAssets() async {}
-    
-    func validateAssets() async {}
-    
-//    // Check hash of all songs (obsolete)
-//    func getSongsHash() -> [HashDigest] {
-//        guard let dataFolder = Bundle.main.url(forResource: appDataFolder, withExtension: nil),
-//              let dataFiles = FileManager.default.enumerator(at: dataFolder, includingPropertiesForKeys: nil)
-//        else {
-//            fatalError("Failed to find \(appDataFolder)")
-//        }
-//
-//        return dataFiles.map {dataFile in
-//            let hash = hashFile(dataFile as! URL)
-//            defaultLogger.debug("\((dataFile as! URL).lastPathComponent): \(hash)")
-//            return hash
-//        }
-//    }
-    
-    func getFileHash(_ filename: String) -> HashDigest {
-        guard let dataFile = Bundle.main.url(forResource: filename, withExtension: nil)
-        else {
-            fatalError("Failed to find \(filename) for hashing")
-        }
-        
-        let hash = hashFile(dataFile)
-        return hash
-    }
-    
 }
 
-
-
-private func hashFile(_ file: URL) -> HashDigest {
-    let data: Data
-    
-    do {
-        data = try Data(contentsOf: file)
-    } catch {
-        fatalError("Couldn't load \(file):\n\(error)")
-    }
-    
-    return Insecure.SHA1.hash(data: data)
-}
-
-private func getMult(_ val: Int64) -> Int {
-    // multiplicity: 1 -> KiB, 2-> MiB, 3-> GiB ...
-    return Int(log(Float(val)) / log(1024))
-}
-
-private func getUnit(_ mult: Int) -> String {
-    switch mult{
-    case 0:
-        return "B"
-    case 1:
-        return "KB"
-    case 2:
-        return "MB"
-    case 3:
-        return "GB"
-    default:
-        return "?B"
-    }
-}
-
-private func readableBytes(_ bytes: Int64) -> String{
-    let mult = getMult(bytes)
-    let base = Int(pow(Float(1024), Float(mult)))
-    let sig = Float(bytes)/Float(base)
-    let sigStr = sig >= 10 ? String(format:"%.1f", sig) : String(format: "%.0f", sig)
-    return sigStr + getUnit(mult)
-}
-
+/* Delegate for background jackets download */
 extension AssetsDownloader: URLSessionDelegate, URLSessionDownloadDelegate {
     
     /* Update download progress */
@@ -330,7 +499,7 @@ extension AssetsDownloader: URLSessionDelegate, URLSessionDownloadDelegate {
 
         DispatchQueue.main.async{
             self.viewModel?.downloadProgress = downloadTask.progress.fractionCompleted
-            self.viewModel?.downloadProgressText = readableBytes(totalBytesWritten) + "/" + readableBytes(totalBytesExpectedToWrite)
+            self.viewModel?.downloadProgressText = formatBytes(totalBytesWritten) + "/" + formatBytes(totalBytesExpectedToWrite)
         }
     }
     
@@ -343,22 +512,17 @@ extension AssetsDownloader: URLSessionDelegate, URLSessionDownloadDelegate {
         let statusCode = (downloadTask.response as? HTTPURLResponse)?.statusCode ?? -1
         if statusCode >= 200 && statusCode <= 299 {
             do {
-                let documentsURL = try FileManager.default.url(for: .documentDirectory,
-                                                               in: .userDomainMask,
-                                                               appropriateFor: nil,
-                                                               create: false)
-                let fname = downloadTask.originalRequest?.url?.lastPathComponent
-                let savedZipURL = documentsURL.appendingPathComponent(fname ?? "tmp.zip")
+ 
+                let savedZipURL = JACKETS_FOLDER_URL.appendingPathComponent("jackets.zip")
                 try FileManager.default.moveItem(at: location, to: savedZipURL)
-//                let savedZipURL = documentsURL.appendingPathComponent("jackets.zip")
                 
                 defaultLogger.debug("Unzipping \(savedZipURL)")
                 try Zip.unzipFile(savedZipURL,
-                                  destination: documentsURL,
+                                  destination: APPDATA_FOLDER_URL,
                                   overwrite: true,
                                   password: nil,
                                   progress: nil)
-                try FileManager.default.removeItem(at: savedZipURL)
+                try? FileManager.default.removeItem(at: savedZipURL)
 
                 DispatchQueue.main.async{
                     self.viewModel?.downloadStatus = .success

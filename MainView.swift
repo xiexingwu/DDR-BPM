@@ -8,7 +8,22 @@
 import SwiftUI
 
 struct MainView: View {
+    @EnvironmentObject var viewModel: ViewModel
+    @EnvironmentObject var modelData: ModelData
+
+    let downloader = AssetsDownloader.shared
+
     var body: some View {
+        
+        let showingInitialLoadAlert = Binding(
+            get: {
+                modelData.initialLoad == .first
+            },
+            set: { _ in
+                modelData.initialLoad = .done
+            }
+        )
+
         TabView {
             BPMSheet()
                 .tabItem{
@@ -31,18 +46,24 @@ struct MainView: View {
                     Label("Settings", systemImage: "gear.circle")
                 }
         }
+        .navigationViewStyle(.stack)
+        .alert("Welcome to the DDR BPM App!\n Go to 'Settings' -> 'Check for Updates' to keep your songs up to date.", isPresented: showingInitialLoadAlert) {
+            Button("OK", role: .cancel) {
+                ()
+            }
+        }
+        .onAppear{
+            downloader.linkModelData(modelData)
+            downloader.linkViewModel(viewModel)
+            Task{
+                let lastUpdateDate = Date(viewModel.lastUpdateDate).timeIntervalSinceNow
+                defaultLogger.debug("seconds since last update: \(lastUpdateDate)")
+                if modelData.initialLoad != .done || (viewModel.updateStatus == .none && -lastUpdateDate >= Date.week) {
+                    defaultLogger.debug("Checking for updates on launch...")
+                    await downloader.checkUpdates()
+                }
+            }
+        }
     }
 }
 
-struct MainView_Previews: PreviewProvider {
-    static let favorites = Favorites()
-    static let viewModel = ViewModel()
-    static let modelData = ModelData()
-
-    static var previews: some View {
-        MainView()
-            .environmentObject(modelData)
-            .environmentObject(favorites)
-            .environmentObject(viewModel)
-    }
-}

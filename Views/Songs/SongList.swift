@@ -138,7 +138,7 @@ struct SongList: View {
                 .onChange(of: viewModel.filterMinLevel) { _ in groupSongs() }
                 .onChange(of: viewModel.filterMaxLevel) { _ in groupSongs() }
         }
-        .navigationBarTitle("Songs")
+        .navigationTitle("Songs")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar{
             /* Dropdown menu */
