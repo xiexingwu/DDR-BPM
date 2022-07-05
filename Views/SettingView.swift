@@ -187,6 +187,7 @@ struct AssetsButton : View {
                 }
             }
         }
+        .disabled(viewModel.updateStatus == .progressing || viewModel.assetsStatus == .progressing || viewModel.updateStatus == .checking || viewModel.assetsStatus == .checking)
         .confirmationDialog(
             "Download CD jackets (Approx \(ASSETS_SIZE)?",
             isPresented: showingBool,

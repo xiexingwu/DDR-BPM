@@ -293,9 +293,7 @@ extension AssetsDownloader {
             var needUpdate = false
 
             needUpdate = try await checkSongs(checkHashes: checkHashes) || needUpdate
-            if checkHashes && viewModel!.jacketsDownloaded{
-                needUpdate = try await checkJackets() || needUpdate
-            }
+            needUpdate = try await checkJackets(checkHashes: checkHashes) || needUpdate
             needUpdate = try await checkCourses() || needUpdate
             
             switch (checkHashes, needUpdate){
@@ -394,7 +392,7 @@ extension AssetsDownloader {
     
     
     
-    private func checkJackets() async throws -> Bool {
+    private func checkJackets(checkHashes: Bool = false) async throws -> Bool {
         // Download files
         let (allSongsURL, allSongsResponse) = try await defaultGithubDownload(GITHUB_LATEST + ALL_SONGS_FILE)
         let (hashedJacketsURL, hashedJacketsResponse) = try await defaultGithubDownload(GITHUB_LATEST + HASHED_JACKETS_FILE)
@@ -416,17 +414,31 @@ extension AssetsDownloader {
             }
             
             // incorrect hash
-            let fileHash = try getFileHash(JACKET_FILE_URL(songName))
-                .description
-                .components(separatedBy: " ")
-                .last!
-            if fileHash != jacketHash {
-                defaultLogger.info("Hash mismatch for \(songName) jacket:")
-//                defaultLogger.debug("Hashes:\n\tlocal: \(fileHash)\n\tremote: \(jacketHash)")
-                missingJackets.append(songName)
+            if checkHashes{
+                let fileHash = try getFileHash(JACKET_FILE_URL(songName))
+                    .description
+                    .components(separatedBy: " ")
+                    .last!
+                if fileHash != jacketHash {
+                    defaultLogger.info("Hash mismatch for \(songName) jacket:")
+    //                defaultLogger.debug("Hashes:\n\tlocal: \(fileHash)\n\tremote: \(jacketHash)")
+                    missingJackets.append(songName)
+                }
             }
         }
         
+        // check for existing jackets
+        do {
+            let jacketsDir = try FileManager.default.contentsOfDirectory(at: JACKETS_FOLDER_URL, includingPropertiesForKeys: nil)
+            if !jacketsDir.isEmpty {
+                DispatchQueue.main.async {
+                    self.viewModel!.jacketsDownloaded = true
+                }
+            }
+        } catch{
+            defaultLogger.error("Failed to list contents of \(JACKETS_FOLDER_URL)")
+        }
+
         return missingJackets.count > 0
     }
     

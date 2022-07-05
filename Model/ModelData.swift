@@ -74,6 +74,10 @@ final class ModelData: ObservableObject {
             }
             
             // copy files
+            if !FileManager.default.fileExists(atPath: APPDATA_FOLDER_URL.path){
+                try FileManager.default.createDirectory(at: APPDATA_FOLDER_URL, withIntermediateDirectories: true)
+            }
+            
             defaultLogger.debug("Copying \(BUNDLE_SONGS_FOLDER_URL.path)")
             try FileManager.default.copyItem(at: BUNDLE_SONGS_FOLDER_URL, to: SONGS_FOLDER_URL)
 

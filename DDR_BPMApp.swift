@@ -17,7 +17,7 @@ let BUNDLE_COURSES_FILE_URL = BUNDLE_APPDATA_FOLDER_URL.appendingPathComponent("
 let DOCUMENTS_URL: URL = try! FileManager.default.url(for: .documentDirectory,
                                                in: .userDomainMask,
                                                appropriateFor: nil,
-                                               create: false)
+                                               create: true)
 let APPDATA_FOLDER_URL: URL = DOCUMENTS_URL.appendingPathComponent("AppData")
 let SONGS_FOLDER_URL: URL = APPDATA_FOLDER_URL.appendingPathComponent("data")
 let JACKETS_FOLDER_URL: URL = APPDATA_FOLDER_URL.appendingPathComponent("jackets")
