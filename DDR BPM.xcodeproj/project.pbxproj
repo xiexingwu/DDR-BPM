@@ -7,9 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		3208BA47283C9D0400953773 /* courses.json in Resources */ = {isa = PBXBuildFile; fileRef = 3208BA45283C9D0300953773 /* courses.json */; };
-		3208BA48283C9D0400953773 /* data.json in Resources */ = {isa = PBXBuildFile; fileRef = 3208BA46283C9D0400953773 /* data.json */; };
 		3208BA4A283CA56500953773 /* GroupedCoursesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3208BA49283CA56500953773 /* GroupedCoursesView.swift */; };
+		321ECC5B286741CC00EA69B4 /* Zip in Frameworks */ = {isa = PBXBuildFile; productRef = 321ECC5A286741CC00EA69B4 /* Zip */; };
+		321ECC5F286984B100EA69B4 /* AsyncButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 321ECC5E286984B100EA69B4 /* AsyncButton.swift */; };
+		321ECC642873283900EA69B4 /* DownloaderUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = 321ECC632873283900EA69B4 /* DownloaderUtil.swift */; };
 		32230725283CADDB0009DBF1 /* CourseDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32230724283CADDB0009DBF1 /* CourseDetail.swift */; };
 		32230727283CCC1D0009DBF1 /* Toolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32230726283CCC1D0009DBF1 /* Toolbar.swift */; };
 		32230729284346BB0009DBF1 /* RandomView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32230728284346BB0009DBF1 /* RandomView.swift */; };
@@ -27,8 +28,8 @@
 		3269EA112820FDC4002C96CB /* ModelData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3269EA102820FDC4002C96CB /* ModelData.swift */; };
 		3269EA132820FDF7002C96CB /* Song.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3269EA122820FDF7002C96CB /* Song.swift */; };
 		3269EA18282108AF002C96CB /* SongRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3269EA17282108AF002C96CB /* SongRow.swift */; };
-		32971DE9285B872300FD438E /* Downloader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32971DE8285B872300FD438E /* Downloader.swift */; };
-		32971DEC285C227800FD438E /* Zip in Frameworks */ = {isa = PBXBuildFile; productRef = 32971DEB285C227800FD438E /* Zip */; };
+		32971DE9285B872300FD438E /* AssetsDownloader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32971DE8285B872300FD438E /* AssetsDownloader.swift */; };
+		32972D902867371700FD438E /* AppResources in Resources */ = {isa = PBXBuildFile; fileRef = 32972D8F2867371700FD438E /* AppResources */; };
 		32B14F8D2821588200E4AC86 /* FavoriteButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32B14F8C2821588200E4AC86 /* FavoriteButton.swift */; };
 		32B14F8F282158B600E4AC86 /* SongList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32B14F8E282158B600E4AC86 /* SongList.swift */; };
 		32B14F9128215A6800E4AC86 /* SongDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32B14F9028215A6800E4AC86 /* SongDetail.swift */; };
@@ -59,9 +60,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		3208BA45283C9D0300953773 /* courses.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = courses.json; sourceTree = "<group>"; };
-		3208BA46283C9D0400953773 /* data.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = data.json; sourceTree = "<group>"; };
 		3208BA49283CA56500953773 /* GroupedCoursesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupedCoursesView.swift; sourceTree = "<group>"; };
+		321ECC5E286984B100EA69B4 /* AsyncButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncButton.swift; sourceTree = "<group>"; };
+		321ECC632873283900EA69B4 /* DownloaderUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloaderUtil.swift; sourceTree = "<group>"; };
 		32230724283CADDB0009DBF1 /* CourseDetail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CourseDetail.swift; sourceTree = "<group>"; };
 		32230726283CCC1D0009DBF1 /* Toolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Toolbar.swift; sourceTree = "<group>"; };
 		32230728284346BB0009DBF1 /* RandomView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RandomView.swift; sourceTree = "<group>"; };
@@ -82,7 +83,8 @@
 		3269EA102820FDC4002C96CB /* ModelData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelData.swift; sourceTree = "<group>"; };
 		3269EA122820FDF7002C96CB /* Song.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Song.swift; sourceTree = "<group>"; };
 		3269EA17282108AF002C96CB /* SongRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SongRow.swift; sourceTree = "<group>"; };
-		32971DE8285B872300FD438E /* Downloader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Downloader.swift; sourceTree = "<group>"; };
+		32971DE8285B872300FD438E /* AssetsDownloader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetsDownloader.swift; sourceTree = "<group>"; };
+		32972D8F2867371700FD438E /* AppResources */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = folder; path = AppResources; sourceTree = SOURCE_ROOT; };
 		32B14F8C2821588200E4AC86 /* FavoriteButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoriteButton.swift; sourceTree = "<group>"; };
 		32B14F8E282158B600E4AC86 /* SongList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SongList.swift; sourceTree = "<group>"; };
 		32B14F9028215A6800E4AC86 /* SongDetail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SongDetail.swift; sourceTree = "<group>"; };
@@ -101,7 +103,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				32971DEC285C227800FD438E /* Zip in Frameworks */,
+				321ECC5B286741CC00EA69B4 /* Zip in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -122,6 +124,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		321ECC60287327DD00EA69B4 /* Downloader */ = {
+			isa = PBXGroup;
+			children = (
+				32971DE8285B872300FD438E /* AssetsDownloader.swift */,
+				321ECC632873283900EA69B4 /* DownloaderUtil.swift */,
+			);
+			path = Downloader;
+			sourceTree = "<group>";
+		};
 		3267844F283C8DED004D67F9 /* Courses */ = {
 			isa = PBXGroup;
 			children = (
@@ -137,12 +148,13 @@
 			isa = PBXGroup;
 			children = (
 				32EFC0B62852375400C9DA92 /* DDR-BPM-Info.plist */,
+				321ECC60287327DD00EA69B4 /* Downloader */,
 				3269EA0D2820FD66002C96CB /* Model */,
 				3269EA0C2820FD5F002C96CB /* Views */,
-				3269EA0B2820FD55002C96CB /* Resources */,
 				3269E9E52820F8EE002C96CB /* Assets.xcassets */,
 				324E0E48282899A100B7AA15 /* MainView.swift */,
 				3269E9E12820F8ED002C96CB /* DDR_BPMApp.swift */,
+				32972D8F2867371700FD438E /* AppResources */,
 				3269E9E72820F8EE002C96CB /* Preview Content */,
 				3269E9DF2820F8ED002C96CB /* Products */,
 			);
@@ -166,15 +178,6 @@
 			path = "Preview Content";
 			sourceTree = "<group>";
 		};
-		3269EA0B2820FD55002C96CB /* Resources */ = {
-			isa = PBXGroup;
-			children = (
-				3208BA45283C9D0300953773 /* courses.json */,
-				3208BA46283C9D0400953773 /* data.json */,
-			);
-			path = Resources;
-			sourceTree = "<group>";
-		};
 		3269EA0C2820FD5F002C96CB /* Views */ = {
 			isa = PBXGroup;
 			children = (
@@ -196,12 +199,11 @@
 			isa = PBXGroup;
 			children = (
 				3269EA102820FDC4002C96CB /* ModelData.swift */,
+				32FFD18D2824CEB90066B3F8 /* ViewModel.swift */,
+				32FDB2C42823CE4400401062 /* Favorites.swift */,
 				3269EA122820FDF7002C96CB /* Song.swift */,
 				32678452283C8EF5004D67F9 /* Course.swift */,
 				32FDB2BF282248CC00401062 /* Difficulty.swift */,
-				32FDB2C42823CE4400401062 /* Favorites.swift */,
-				32FFD18D2824CEB90066B3F8 /* ViewModel.swift */,
-				32971DE8285B872300FD438E /* Downloader.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -222,6 +224,7 @@
 			children = (
 				32B14F8C2821588200E4AC86 /* FavoriteButton.swift */,
 				32230726283CCC1D0009DBF1 /* Toolbar.swift */,
+				321ECC5E286984B100EA69B4 /* AsyncButton.swift */,
 			);
 			path = Util;
 			sourceTree = "<group>";
@@ -260,7 +263,7 @@
 			);
 			name = "DDR BPM";
 			packageProductDependencies = (
-				32971DEB285C227800FD438E /* Zip */,
+				321ECC5A286741CC00EA69B4 /* Zip */,
 			);
 			productName = "DDR BPM";
 			productReference = 3269E9DE2820F8ED002C96CB /* DDR BPM.app */;
@@ -336,6 +339,7 @@
 			mainGroup = 3269E9D52820F8ED002C96CB;
 			packageReferences = (
 				32971DEA285C227800FD438E /* XCRemoteSwiftPackageReference "Zip" */,
+				321ECC59286741CC00EA69B4 /* XCRemoteSwiftPackageReference "Zip" */,
 			);
 			productRefGroup = 3269E9DF2820F8ED002C96CB /* Products */;
 			projectDirPath = "";
@@ -354,9 +358,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				3269E9E92820F8EE002C96CB /* Preview Assets.xcassets in Resources */,
-				3208BA47283C9D0400953773 /* courses.json in Resources */,
 				3269E9E62820F8EE002C96CB /* Assets.xcassets in Resources */,
-				3208BA48283C9D0400953773 /* data.json in Resources */,
+				32972D902867371700FD438E /* AppResources in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -395,6 +398,7 @@
 				32B14F8F282158B600E4AC86 /* SongList.swift in Sources */,
 				32FFD1922826EB560066B3F8 /* BPMPlot.swift in Sources */,
 				32FFD18E2824CEB90066B3F8 /* ViewModel.swift in Sources */,
+				321ECC642873283900EA69B4 /* DownloaderUtil.swift in Sources */,
 				32B14F8D2821588200E4AC86 /* FavoriteButton.swift in Sources */,
 				32FFD1902824FA470066B3F8 /* GroupedSongsView.swift in Sources */,
 				32B14F9128215A6800E4AC86 /* SongDetail.swift in Sources */,
@@ -403,8 +407,9 @@
 				32230729284346BB0009DBF1 /* RandomView.swift in Sources */,
 				3269E9E42820F8ED002C96CB /* SongView.swift in Sources */,
 				3269EA132820FDF7002C96CB /* Song.swift in Sources */,
+				321ECC5F286984B100EA69B4 /* AsyncButton.swift in Sources */,
 				3269E9E22820F8ED002C96CB /* DDR_BPMApp.swift in Sources */,
-				32971DE9285B872300FD438E /* Downloader.swift in Sources */,
+				32971DE9285B872300FD438E /* AssetsDownloader.swift in Sources */,
 				32FDB2BE2822365B00401062 /* DifficultySelector.swift in Sources */,
 				32FDB2C52823CE4400401062 /* Favorites.swift in Sources */,
 				32230727283CCC1D0009DBF1 /* Toolbar.swift in Sources */,
@@ -737,6 +742,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		321ECC59286741CC00EA69B4 /* XCRemoteSwiftPackageReference "Zip" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/marmelroy/Zip";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.1.0;
+			};
+		};
 		32971DEA285C227800FD438E /* XCRemoteSwiftPackageReference "Zip" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/marmelroy/Zip";
@@ -748,9 +761,9 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		32971DEB285C227800FD438E /* Zip */ = {
+		321ECC5A286741CC00EA69B4 /* Zip */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 32971DEA285C227800FD438E /* XCRemoteSwiftPackageReference "Zip" */;
+			package = 321ECC59286741CC00EA69B4 /* XCRemoteSwiftPackageReference "Zip" */;
 			productName = Zip;
 		};
 /* End XCSwiftPackageProductDependency section */

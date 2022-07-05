@@ -73,12 +73,12 @@ func getSongIndexByTitletranslit(_ title: String, _ songs: [Song]) -> Int {
         return tgt == src
     })!
 }
-func getSongIndexByName(_ name: String, _ songs: [Song]) -> Int {
+func getSongIndexByName(_ name: String, _ songs: [Song]) -> Int? {
     songs.firstIndex(where: {
         let src = cleanTitleSearch($0.name)
         let tgt = cleanTitleSearch(name)
         return tgt == src
-    })!
+    })
 }
 
 private func cleanTitleSearch(_ txt : String) -> String{
@@ -188,9 +188,6 @@ struct SongGroup: Identifiable {//, ObservableObject {
 }
 
 struct Song: Hashable, Codable, Identifiable {
-    enum SongError: Error {
-            case missingFile
-        }
 
     var name: String
     var title: String
@@ -206,18 +203,16 @@ struct Song: Hashable, Codable, Identifiable {
     
     /* Derived & constant fields */
     var jacket: Image? {
-//        Image((resources.jacket as NSString).deletingPathExtension)
-        do {
-            let documentsURL = try FileManager.default.url(for: .documentDirectory,
-                                                           in: .userDomainMask,
-                                                           appropriateFor: nil,
-                                                           create: false)
-            let fname = documentsURL.appendingPathComponent("jackets/\(resources.jacket)")
-            guard let image = UIImage(contentsOfFile: fname.path) else { throw SongError.missingFile }
+        if let image = UIImage(contentsOfFile: JACKET_FILE_URL(name).path) {
             return Image(uiImage: image)
-        } catch {
-            return nil
         }
+
+        // Legacy jacket folder
+        if let image = UIImage(contentsOfFile: DOCUMENTS_URL.appendingPathComponent("jackets/\(resources.jacket)").path) {
+            return Image(uiImage: image)
+        }
+        
+        return nil
     }
     
     var id: String{

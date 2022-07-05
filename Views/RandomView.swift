@@ -93,7 +93,6 @@ struct RandomView: View {
 
         let isBetweenMinMax : (Int?) -> Bool = { level in
             guard let level = level else { return false }
-            print("level \(level) is not null")
             return level >= min && level <= max
         }
         

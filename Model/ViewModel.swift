@@ -8,6 +8,20 @@
 import Foundation
 import SwiftUI
 
+// Convert Date to Int so AppStorage can store it
+extension Int {
+    init(_ date: Date){
+        self = Int(date.timeIntervalSince1970)
+    }
+}
+extension Date {
+    init(_ int: Int){
+        self = Date(timeIntervalSince1970: TimeInterval(int))
+    }
+    
+    static let week : TimeInterval = TimeInterval(7 * 24 * 60 * 60)
+}
+
 class ViewModel : ObservableObject{
     
     /* Search util */
@@ -40,10 +54,48 @@ class ViewModel : ObservableObject{
     @Published var downloadProgress : Double = -1
     @Published var downloadProgressText : String = ""
     @Published var downloadStatus : DownloadStatus = .none
+    
+    /* Updates and assets validation */
+    @Published var updateStatus: UpdateStatus = .none
+    @Published var assetsStatus: UpdateStatus = .none
+    @AppStorage("lastUpdateDate") var lastUpdateDate: Int = Int(Date(timeIntervalSinceNow: -Date.week ))
+
 }
 
-enum DownloadStatus {
+extension ViewModel {
+    func reset() {
+        userReadSpeed = 600
+
+        userDiff = .expert
+        userSongSort = .level
+        userSD = .single
+        filterMinLevel = 1
+        filterMaxLevel = 19
+        randomMinLevel = 1
+        randomMaxLevel = 19
+        
+        userCourseSort = .version
+        userShowDDRCourses = true
+        userShowLIFE4Courses = true
+        userShowCustomCourses = true
+        
+        jacketsDownloaded = false
+        
+        lastUpdateDate = Int(Date())
+    }
+}
+
+enum DownloadStatus: String {
     case none
     case fail
     case success
+}
+
+enum UpdateStatus: String {
+    case none
+    case checking
+    case available
+    case progressing
+    case success
+    case fail
 }

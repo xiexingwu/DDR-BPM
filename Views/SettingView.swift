@@ -14,8 +14,10 @@ enum ShowingConfirmation: Hashable{
     case none
     case clearFavs
     case clearCourses
-    case clearAssets
+    case deleteJackets
     case downloadAssets
+    case checkUpdates
+    case resetApp
 }
 
 struct SettingView: View {
@@ -27,19 +29,25 @@ struct SettingView: View {
     var body: some View { NavigationView{
         VStack{
             List{
-                ReadSpeedInput(focusedField: _focusedField)
-                
-                AssetsButton(showing: $showingConfirmation)
-                
-                ClearFavsButton(showing: $showingConfirmation)
-                
-                //                    ClearCoursesButton(showing: $showingConfirmation)
+                Section{
+                    ReadSpeedInput(focusedField: _focusedField)
+                }
+
+                Section{
+                    UpdateButtons(showing: $showingConfirmation)
+                    AssetsButton(showing: $showingConfirmation)
+                    ClearFavsButton(showing: $showingConfirmation)
+//                    ClearCoursesButton(showing: $showingConfirmation)
+                }
+            
+                Section{
+                    ResetAppButton(showing: $showingConfirmation)
+                }
             }
-            .navigationBarTitle("Settings")
             
             Link("Support me (PayPal)", destination: URL(string: "https://www.paypal.com/donate/?hosted_button_id=2R64RY6ZL52EW")!)
-            //                    .foregroundColor(.blue)
         }
+        .navigationBarTitle("Settings")
     }}
 }
 
@@ -152,32 +160,18 @@ struct AssetsButton : View {
     @StateObject var downloader = AssetsDownloader()
 
     var body: some View {
-//        let failBinding = Binding(
-//            get:{ viewModel.downloadStatus == .fail },
-//            set:{ viewModel.downloadStatus = $0 ? .fail : .none}
-//        )
-//        let successBinding = Binding(
-//            get:{ viewModel.downloadStatus == .success },
-//            set:{ viewModel.downloadStatus = $0 ? .success : .none}
-//        )
         
         if viewModel.jacketsDownloaded{
-            ClearAssetsButton
+            DeleteJacketsButton
         } else {
             DownloadAssetsButton
-//                .alert("Download failed.", isPresented: failBinding){
-//                    Button("OK", role: .cancel) {}
-//                }
-//                .alert("Download Finished.", isPresented: successBinding){
-//                    Button("OK", role: .cancel) {}
-//                }
         }
     }
     
     var DownloadAssetsButton : some View {
         let showingBool = Binding(get: {showing == .downloadAssets}, set: {showing = $0 ? .downloadAssets : .none})
         return Button{
-            showing = .downloadAssets
+            showing = viewModel.downloadProgress < 0 ? .downloadAssets : .none
         } label: {
             HStack{
                 Label("Download CD jackets", systemImage: "square.and.arrow.down")
@@ -199,18 +193,17 @@ struct AssetsButton : View {
             titleVisibility: .visible
         ){
             Button("Yes", role: .destructive){
-                downloader.linkViewModel(viewModel: viewModel)
                 downloader.downloadJacketsZip()
             }
         }
     }
     
-    var ClearAssetsButton : some View {
-        let showingBool = Binding(get: {showing == .clearAssets}, set: {showing = $0 ? .clearAssets : .none})
+    var DeleteJacketsButton : some View {
+        let showingBool = Binding(get: {showing == .deleteJackets}, set: {showing = $0 ? .deleteJackets : .none})
         return Button(role: .destructive){
-            showing = .clearAssets
+            showing = .deleteJackets
         } label: {
-            Label("Clear Assets", systemImage: "trash")
+            Label("Delete CD Jackets", systemImage: "trash")
         }
         .confirmationDialog(
             "Confirm clearing downloads (CD jackets)?",
@@ -219,30 +212,146 @@ struct AssetsButton : View {
         ){
             Button("Yes", role: .destructive){
                 do {
-                    let documentsURL = try FileManager.default.url(for: .documentDirectory,
-                                                                   in: .userDomainMask,
-                                                                   appropriateFor: nil,
-                                                                   create: false)
-                    /* Clear .zip .tmp jackets/ simfiles/ */
-                    let fileURLs = try FileManager.default
-                        .contentsOfDirectory(at: documentsURL,
-                                             includingPropertiesForKeys: nil,
-                                             options: .skipsHiddenFiles)
-                    
-                    for fileURL in fileURLs
-                    where fileURL.pathExtension == "tmp"
-                    || fileURL.pathExtension == "zip"
-                    || fileURL.lastPathComponent == "jackets"
-                    || fileURL.lastPathComponent == "simfiles"
-                    {
-                        try FileManager.default.removeItem(at: fileURL)
-                    }
+                    // Delete legacy jacket folder
+                    try? FileManager.default.removeItem(at: DOCUMENTS_URL.appendingPathComponent("jackets"))
+                    try FileManager.default.removeItem(at: JACKETS_FOLDER_URL)
+
                     viewModel.jacketsDownloaded = false
                 } catch {
-                    print("failed to clear files")
+                    defaultLogger.error("failed to delete jackets.")
                 }
             }
         }
     }
 }
 
+
+struct UpdateButtons : View {
+    @EnvironmentObject var modelData: ModelData
+    @EnvironmentObject var viewModel: ViewModel
+    @Binding var showing: ShowingConfirmation
+    
+    private let downloader = AssetsDownloader.shared
+
+    var body: some View {
+        Group {
+            CheckUpdatesButton
+            VerifyFilesButton
+        }
+    }
+    
+    var CheckUpdatesButton : some View {
+        let systemImage: String = "arrow.triangle.2.circlepath"
+        let labelText: String = {
+            switch viewModel.updateStatus{
+            case .checking:
+                return "Checking for updates..."
+            case .available:
+                return "Updates available"
+            case .progressing:
+                return "Updating..."
+            case .success:
+                return "Up to date"
+            case .fail:
+                return "Update failed (Try again)"
+            default:
+                return "Check updates"
+            }
+        }()
+        
+        return AsyncButton() {
+            switch viewModel.updateStatus {
+            case .available:
+                await downloader.updateAssets()
+            case .checking, .progressing:
+                ()
+            case .fail:
+                await downloader.checkUpdates()
+                await downloader.updateAssets()
+            default:
+                await downloader.checkUpdates()
+            }
+        } label: {
+            HStack{
+                Label(labelText, systemImage: systemImage)
+            }
+        }
+        .disabled(viewModel.updateStatus == .progressing || viewModel.assetsStatus == .progressing || viewModel.updateStatus == .checking || viewModel.assetsStatus == .checking)
+    }
+    
+    
+    var VerifyFilesButton: some View {
+        let systemImage: String = "wrench.and.screwdriver"
+        let labelText: String = {
+            switch viewModel.assetsStatus{
+            case .checking:
+                return "Checking for broken files..."
+            case .available:
+                return "Fix missing/broken files"
+            case .progressing:
+                return "Fixing..."
+            case .success:
+                return "Files OK"
+            case .fail:
+                return "Files still broken (Try again)"
+            default:
+                return "Check for broken files"
+            }
+        }()
+        
+        return AsyncButton() {
+            switch viewModel.assetsStatus {
+            case .available:
+                await downloader.updateAssets(fix: true)
+            case .checking, .progressing:
+                ()
+            case .fail:
+                await downloader.checkUpdates(checkHashes: true)
+                await downloader.updateAssets(fix: true)
+            default:
+                await downloader.checkUpdates(checkHashes: true)
+            }
+        } label: {
+            HStack{
+                Label(labelText, systemImage: systemImage)
+            }
+        }
+        .disabled(viewModel.updateStatus == .progressing || viewModel.assetsStatus == .progressing || viewModel.updateStatus == .checking || viewModel.assetsStatus == .checking)
+    }
+
+}
+
+struct ResetAppButton : View {
+    @EnvironmentObject var viewModel: ViewModel
+    @EnvironmentObject var modelData: ModelData
+    @EnvironmentObject var favorites: Favorites
+    @Binding var showing: ShowingConfirmation
+    
+    @State private var showingPostReset: Bool = false
+    
+    var body: some View {
+        let showingBool = Binding(get: {showing == .resetApp}, set: {showing = $0 ? .resetApp : .none})
+        Button(role: .destructive){
+            showing = .resetApp
+        } label:{
+            Label("Reset app", systemImage: "trash")
+        }
+        .confirmationDialog(
+            "This will reset all app settings and delete all data.\nProceed?",
+            isPresented: showingBool,
+            titleVisibility: .visible
+        ){
+            Button("Yes", role: .destructive){
+                modelData.reset()
+                viewModel.reset()
+                favorites.clear()
+                showingPostReset = true
+            }
+        }
+        .alert("Please close and restart the app.", isPresented: $showingPostReset){
+            Button("OK", role: .cancel) {
+                ()
+            }
+        }
+    }
+}

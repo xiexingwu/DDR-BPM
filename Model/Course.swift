@@ -63,8 +63,9 @@ struct CourseSong: Hashable, Codable {
     }
     
     mutating func findSong(_ allSongs: [Song]){
-        let i = getSongIndexByName(name, allSongs)
-        song = allSongs[i]
+        if let i = getSongIndexByName(name, allSongs){
+            song = allSongs[i]
+        }
     }
 }
 
