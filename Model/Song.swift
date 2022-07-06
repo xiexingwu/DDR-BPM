@@ -171,6 +171,13 @@ func songHasLevelBetween(_ song: Song, min: Int=1, max: Int=19, sd: SDType = .si
     }
 }
 
+func getSongVersionAbbrev(_ song: Song) -> String {
+    if let i = song.version.firstIndex(of: " ") {
+        return String(song.version[i...])
+    } else {
+        return song.version
+    }
+}
 
 struct SongGroup: Identifiable {//, ObservableObject {
     var sortType: SortType = .level

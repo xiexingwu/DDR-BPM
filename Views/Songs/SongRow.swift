@@ -140,7 +140,7 @@ struct SongRow: View {
                             }
                             Spacer()
                             
-                            Text(song.version[song.version.firstIndex(of: " ")!...])
+                            Text(getSongVersionAbbrev(song))
                                 .font(.caption)
                                 .foregroundColor(.gray)
                             
