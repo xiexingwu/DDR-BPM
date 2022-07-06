@@ -34,7 +34,7 @@ struct GroupedSongsView: View {
         if songGroups.count > 0{
             ScrollView{
                 LazyVStack(alignment:.leading, pinnedViews: [.sectionHeaders]){
-                    ForEach(0 ... songGroups.count - 1, id:\.self) { i in
+                    ForEach(0 ..< songGroups.count, id:\.self) { i in
                         let songGroup = songGroups[i]
                         Section(header: header(songGroup)){
                             if selectedGroup == songGroup.id{
@@ -47,8 +47,17 @@ struct GroupedSongsView: View {
                     }
                 }
             }
+            .onChange(of: viewModel.songGroups) {songGroups in
+                if songGroups.count == 1{
+                    selectedGroup = songGroups[0].id
+                } else {
+                    selectedGroup = ""
+                }
+            }
         } else {
-            List{}
+            List{
+                Text("No songs matching filters.")
+            }
                 .listStyle(.plain)
         }
     }
@@ -90,24 +99,4 @@ struct GroupedSongsView: View {
     }
 }
 
-//struct GroupedSongsView_Previews: PreviewProvider {
-//    static let favorites = Favorites()
-//    static let viewModel = ViewModel()
-//    static let modelData = ModelData()
-//    static let songs = modelData.songs[0...3]
-//    static let songGroup = songs.map{SongGroup.fromSong($0, sortType: .version) }
-//    static let songGroups = [
-//        SongGroup(sortType: .level, name: "18", songs: songGroup ),
-//        SongGroup(sortType: .level, name: "17", songs: songGroup )
-//    ]
-//
-//    static var previews: some View {
-//        viewModel.songGroups = songGroups
-//        return GroupedSongsView()
-//            .environmentObject(modelData)
-//            .environmentObject(viewModel)
-//            .environmentObject(favorites)
-//            .preferredColorScheme(.dark)
-//    }
-//}
 

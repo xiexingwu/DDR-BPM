@@ -69,7 +69,7 @@ struct CourseSong: Hashable, Codable {
     }
 }
 
-struct CourseGroup: Identifiable{
+struct CourseGroup: Identifiable, Equatable{
     
     var sortType: SortType = .name
     var name: String = ""

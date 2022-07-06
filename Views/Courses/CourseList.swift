@@ -151,15 +151,3 @@ struct NavigableCourseList: View {
         .navigationViewStyle(StackNavigationViewStyle())
     }
 }
-
-struct CourseList_Previews: PreviewProvider {
-    static let favorites = Favorites()
-    static let viewModel = ViewModel()
-    static let modelData = ModelData()
-    static var previews: some View {
-        CourseList()
-            .environmentObject(modelData)
-            .environmentObject(viewModel)
-            .environmentObject(favorites)
-    }
-}

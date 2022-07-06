@@ -35,7 +35,7 @@ struct GroupedCoursesView: View {
         if courseGroups.count > 0{
             ScrollView{
                 LazyVStack(alignment:.leading, pinnedViews: [.sectionHeaders]){
-                    ForEach(0 ... courseGroups.count - 1, id:\.self) { i in
+                    ForEach(0 ..< courseGroups.count, id:\.self) { i in
                         let courseGroup = courseGroups[i]
                         Section(header: header(courseGroup)){
                             if selectedGroup == courseGroup.id{
@@ -47,9 +47,18 @@ struct GroupedCoursesView: View {
                         }
                     }
                 }
+                .onChange(of: courseGroups) {courseGroups in
+                    if courseGroups.count == 1{
+                        selectedGroup = courseGroups[0].id
+                    }else {
+                        selectedGroup = ""
+                    }
+                }
             }
         } else {
-            List {}
+            List {
+                Text("No courses matching filters.")
+            }
                 .listStyle(.plain)
         }
     }

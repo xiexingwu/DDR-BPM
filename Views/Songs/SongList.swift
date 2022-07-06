@@ -96,7 +96,7 @@ struct SongList: View {
         var groups : [SongGroup] = []
         let group = SongGroup(
             sortType: .none,
-            name: "All songs",
+            name: viewModel.searchText.isEmpty ? "All songs" : "Searching \"\(viewModel.searchText)\"",
             songs: songs
                 .map{SongGroup.fromSong($0, sortType: .none)}
         )
@@ -208,18 +208,3 @@ struct NavigableSongList: View {
 }
 
 
-
-struct SongList_Previews: PreviewProvider {
-    static let favorites = Favorites()
-    static let viewModel = ViewModel()
-    static let modelData = ModelData()
-    
-    static var previews: some View {
-        NavigableSongList()
-        //        .ignoresSafeArea()
-            .environmentObject(modelData)
-            .environmentObject(viewModel)
-            .environmentObject(favorites)
-            .preferredColorScheme(.dark)
-    }
-}

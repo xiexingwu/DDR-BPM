@@ -179,7 +179,7 @@ func getSongVersionAbbrev(_ song: Song) -> String {
     }
 }
 
-struct SongGroup: Identifiable {//, ObservableObject {
+struct SongGroup: Identifiable, Equatable {
     var sortType: SortType = .level
     var name: String = ""
     var songs: [SongGroup]? = nil
