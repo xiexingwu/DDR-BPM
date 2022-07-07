@@ -28,6 +28,10 @@
 		3269EA112820FDC4002C96CB /* ModelData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3269EA102820FDC4002C96CB /* ModelData.swift */; };
 		3269EA132820FDF7002C96CB /* Song.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3269EA122820FDF7002C96CB /* Song.swift */; };
 		3269EA18282108AF002C96CB /* SongRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3269EA17282108AF002C96CB /* SongRow.swift */; };
+		3277AD572875776F00EFD47C /* UIView+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3277AD542875776F00EFD47C /* UIView+Extension.swift */; };
+		3277AD582875776F00EFD47C /* View+Modifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3277AD552875776F00EFD47C /* View+Modifiers.swift */; };
+		3277AD592875776F00EFD47C /* AlwaysPopoverModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3277AD562875776F00EFD47C /* AlwaysPopoverModifier.swift */; };
+		3277AD5B287577A300EFD47C /* ContentViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3277AD5A287577A300EFD47C /* ContentViewController.swift */; };
 		32971DE9285B872300FD438E /* AssetsDownloader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32971DE8285B872300FD438E /* AssetsDownloader.swift */; };
 		32972D902867371700FD438E /* AppResources in Resources */ = {isa = PBXBuildFile; fileRef = 32972D8F2867371700FD438E /* AppResources */; };
 		32B14F8D2821588200E4AC86 /* FavoriteButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32B14F8C2821588200E4AC86 /* FavoriteButton.swift */; };
@@ -83,6 +87,10 @@
 		3269EA102820FDC4002C96CB /* ModelData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelData.swift; sourceTree = "<group>"; };
 		3269EA122820FDF7002C96CB /* Song.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Song.swift; sourceTree = "<group>"; };
 		3269EA17282108AF002C96CB /* SongRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SongRow.swift; sourceTree = "<group>"; };
+		3277AD542875776F00EFD47C /* UIView+Extension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIView+Extension.swift"; sourceTree = "<group>"; };
+		3277AD552875776F00EFD47C /* View+Modifiers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "View+Modifiers.swift"; sourceTree = "<group>"; };
+		3277AD562875776F00EFD47C /* AlwaysPopoverModifier.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlwaysPopoverModifier.swift; sourceTree = "<group>"; };
+		3277AD5A287577A300EFD47C /* ContentViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContentViewController.swift; sourceTree = "<group>"; };
 		32971DE8285B872300FD438E /* AssetsDownloader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetsDownloader.swift; sourceTree = "<group>"; };
 		32972D8F2867371700FD438E /* AppResources */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = folder; path = AppResources; sourceTree = SOURCE_ROOT; };
 		32B14F8C2821588200E4AC86 /* FavoriteButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoriteButton.swift; sourceTree = "<group>"; };
@@ -219,9 +227,21 @@
 			path = Songs;
 			sourceTree = "<group>";
 		};
+		3277AD532875775300EFD47C /* AlwaysPopOver */ = {
+			isa = PBXGroup;
+			children = (
+				3277AD562875776F00EFD47C /* AlwaysPopoverModifier.swift */,
+				3277AD542875776F00EFD47C /* UIView+Extension.swift */,
+				3277AD5A287577A300EFD47C /* ContentViewController.swift */,
+				3277AD552875776F00EFD47C /* View+Modifiers.swift */,
+			);
+			path = AlwaysPopOver;
+			sourceTree = "<group>";
+		};
 		32B14F8B2821587400E4AC86 /* Util */ = {
 			isa = PBXGroup;
 			children = (
+				3277AD532875775300EFD47C /* AlwaysPopOver */,
 				32B14F8C2821588200E4AC86 /* FavoriteButton.swift */,
 				32230726283CCC1D0009DBF1 /* Toolbar.swift */,
 				321ECC5E286984B100EA69B4 /* AsyncButton.swift */,
@@ -385,6 +405,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				3269EA112820FDC4002C96CB /* ModelData.swift in Sources */,
+				3277AD592875776F00EFD47C /* AlwaysPopoverModifier.swift in Sources */,
 				3269EA18282108AF002C96CB /* SongRow.swift in Sources */,
 				3267844E283C89A9004D67F9 /* CourseList.swift in Sources */,
 				32FDB2C0282248CC00401062 /* Difficulty.swift in Sources */,
@@ -402,6 +423,9 @@
 				32B14F8D2821588200E4AC86 /* FavoriteButton.swift in Sources */,
 				32FFD1902824FA470066B3F8 /* GroupedSongsView.swift in Sources */,
 				32B14F9128215A6800E4AC86 /* SongDetail.swift in Sources */,
+				3277AD5B287577A300EFD47C /* ContentViewController.swift in Sources */,
+				3277AD582875776F00EFD47C /* View+Modifiers.swift in Sources */,
+				3277AD572875776F00EFD47C /* UIView+Extension.swift in Sources */,
 				324E0E49282899A100B7AA15 /* MainView.swift in Sources */,
 				32678453283C8EF5004D67F9 /* Course.swift in Sources */,
 				32230729284346BB0009DBF1 /* RandomView.swift in Sources */,

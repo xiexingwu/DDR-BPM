@@ -63,6 +63,58 @@ enum VersionType : String, Equatable, CaseIterable, Sortable {
     }
 }
 
+enum BPMRange: Int, CaseIterable, CustomStringConvertible {
+    case any = -1
+    case slow = 99
+    case _100 = 100
+    case _110 = 110
+    case _120 = 120
+    case _130 = 130
+    case _140 = 140
+    case _150 = 150
+    case _160 = 160
+    case _170 = 170
+    case _180 = 180
+    case _190 = 190
+    case _200 = 200
+    case _210 = 210
+    case fast = 220
+    
+    var description: String {
+        switch self{
+        case .any: return "Any"
+        case .slow: return "~99"
+        case ._100: return "100~109"
+        case ._110: return "110~119"
+        case ._120: return "120~129"
+        case ._130: return "130~139"
+        case ._140: return "140~149"
+        case ._150: return "150~159"
+        case ._160: return "160~169"
+        case ._170: return "170~179"
+        case ._180: return "180~189"
+        case ._190: return "190~199"
+        case ._200: return "200~209"
+        case ._210: return "210~219"
+        case .fast: return "220~"
+        }
+    }
+    
+    static func isInBPMRange(bpm: Int, bpmRange: BPMRange, allowMultiple: Bool = false) -> Bool {
+        let mults : [Float] = [1/8, 1/4, 1/2, 1, 2, 4, 8]
+        let bpms = allowMultiple ? mults.map{ Int($0 * Float(bpm)) }: [bpm]
+        
+        switch bpmRange {
+        case .slow:
+            return bpms.map{ $0 <= bpmRange.rawValue }.contains(true)
+        case .fast:
+            return bpms.map{ $0 >= bpmRange.rawValue }.contains(true)
+        default:
+            return bpms.map{ $0 >= bpmRange.rawValue && $0 < bpmRange.rawValue + 10}.contains(true)
+        }
+    }
+}
+
 func getSongIndexByID(_ songID: String, _ songs: [Song]) -> Int {
     songs.firstIndex(where: {$0.id == songID })!
 }
@@ -87,6 +139,10 @@ private func cleanTitleSearch(_ txt : String) -> String{
 
 
 func getChartIndexFromUser(_ song: Song, _ viewModel: ViewModel) -> Int {
+    if !song.perChart {
+        return 0
+    }
+
     let difficulty = viewModel.userDiff
     let songDifficulties : [DifficultyType] = Difficulty.fromSongSD(song, sd: viewModel.userSD).map {$0.difficulty }
     if songDifficulties.contains(difficulty){
@@ -101,12 +157,44 @@ func getChartIndexFromUser(_ song: Song, _ viewModel: ViewModel) -> Int {
     }
 }
 func getChartIndexFromDifficulty(_ song: Song, _ difficulty: DifficultyType, _ sd: SDType = .single) -> Int {
-    if (!song.perChart) {
+    if !song.perChart {
         return 0
-    }else{
-        let songDifficulties : [DifficultyType] = Difficulty.fromSongSD(song, sd: sd).map {$0.difficulty }
-            return songDifficulties.firstIndex(where: { $0 == difficulty })!
     }
+    
+    let songDifficulties : [DifficultyType] = Difficulty.fromSongSD(song, sd: sd).map {$0.difficulty }
+    return songDifficulties.firstIndex(where: { $0 == difficulty })!
+    
+}
+
+func getChartIndicesBetweenLevel(_ song: Song, min: Int=1, max: Int=19, sd: SDType = .single) -> [Int] {
+    if !song.perChart {
+        return songHasLevelBetween(song, min: min, max: max, sd: sd) ? [0] : []
+    }
+    
+    let levelsSingle = song.levels.single?.toArray() ?? []
+    
+    var out : [Int] = []
+
+    switch sd {
+    case .single:
+        let inLevelRange = levelsSingle.map{ $0 >= min && $0 <= max }
+        for i in 0 ..< inLevelRange.count {
+            if inLevelRange[i] {
+                out.append(i)
+            }
+        }
+    case .double:
+        let levelsDouble = song.levels.double?.toArray() ?? []
+        let inLevelRange = levelsDouble.map{ $0 >= min && $0 <= max }
+        for i in 0 ..< inLevelRange.count {
+            if inLevelRange[i] {
+                out.append(i+levelsSingle.count)
+            }
+        }
+    }
+
+    return out
+
 }
 
 func filterSongsByName(_ songs : [Song], _ text : String) -> [Song] {
@@ -168,6 +256,21 @@ func songHasLevelBetween(_ song: Song, min: Int=1, max: Int=19, sd: SDType = .si
         || levels.challenge ?? 0 >= min && levels.challenge ?? 20 <= max
     }else{
         return false
+    }
+}
+
+func songHasBPM(_ song: Song, bpmRange: BPMRange = .any, allowMultiple: Bool = false, minLevel: Int=1, maxLevel: Int=19, sd: SDType = .single) -> Bool {
+    if bpmRange == .any { return true }
+    if !song.perChart{
+        let bpm = song.chart[0].dominantBpm
+        return BPMRange.isInBPMRange(bpm: bpm, bpmRange: bpmRange, allowMultiple: allowMultiple)
+    }
+    else {
+        let chartIndices = getChartIndicesBetweenLevel(song, min: minLevel, max: maxLevel, sd: sd)
+        let charts = chartIndices.map{ song.chart[$0] }
+        let bpms = charts.map{ $0.dominantBpm }
+        let hasBPM = bpms.map{ BPMRange.isInBPMRange(bpm: $0, bpmRange: bpmRange, allowMultiple: allowMultiple) }
+        return hasBPM.contains(true)
     }
 }
 
@@ -258,6 +361,16 @@ struct Levels: Hashable, Codable{
         var medium: Int?
         var hard: Int?
         var challenge: Int?
+        
+        func toArray() -> [Int] {
+            var out : [Int] = []
+            if let level = self.beginner { out.append(level) }
+            if let level = self.easy { out.append(level) }
+            if let level = self.medium { out.append(level) }
+            if let level = self.hard { out.append(level) }
+            if let level = self.challenge { out.append(level) }
+            return out
+        }
     }
 }
 
