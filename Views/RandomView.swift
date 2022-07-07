@@ -68,7 +68,7 @@ struct RandomView: View {
     
     @State private var selectLevelRange: Bool = false
     @State private var filteredSongs: [Song] = []
-    @State private var randomSongs: [CourseSong] = []
+    @State private var randomSongs: [CourseSong]? = nil
     
     @State private var selectedBPMRange: BPMRange = .any
     @State private var allowBPMMultiple: Bool = false
@@ -233,14 +233,17 @@ struct RandomView: View {
                 
                 // Results
                 List{
-                    
-                    ForEach(randomSongs, id:\.self){ song in
-                        NavigableSongRow(song: song.song!, difficulty: song.difficulty)
+                    if let randomSongs = randomSongs{
+                        if randomSongs.count == 0 {
+                            Text("No songs match filters.")
+                        }
+
+                        ForEach(randomSongs, id:\.self){ song in
+                            NavigableSongRow(song: song.song!, difficulty: song.difficulty)
+                        }
                     }
+
                     
-                    if randomSongs.isEmpty{
-                        Text("No songs match filters.")
-                    }
                 }
                 
                 Spacer()
