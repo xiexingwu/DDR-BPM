@@ -160,13 +160,8 @@ struct BPMSheet: View{
             
             Spacer()
         }
-        .onTapGesture {
-            bpmInputFocused = false
-//            UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to:nil, from:nil, for:nil)
-        }
-//        .onAppear { DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-//            bpmInputFocused = true }
-//        }
+        .hideKeyboardWhenTappedAround()
+
     }
 }
 

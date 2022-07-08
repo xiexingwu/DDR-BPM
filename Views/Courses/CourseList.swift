@@ -68,9 +68,6 @@ struct CourseList: View {
         
     }
     private func groupCourses() -> [CourseGroup] {
-        if !viewModel.searchText.isEmpty {
-            return groupCoursesByNone(filterCoursesByName(filteredCourses, viewModel.searchText))
-        }
         
         switch viewModel.userCourseSort {
         case .version:

@@ -32,6 +32,7 @@
 		3277AD582875776F00EFD47C /* View+Modifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3277AD552875776F00EFD47C /* View+Modifiers.swift */; };
 		3277AD592875776F00EFD47C /* AlwaysPopoverModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3277AD562875776F00EFD47C /* AlwaysPopoverModifier.swift */; };
 		3277AD5B287577A300EFD47C /* ContentViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3277AD5A287577A300EFD47C /* ContentViewController.swift */; };
+		3277AD782878B76700EFD47C /* Introspect in Frameworks */ = {isa = PBXBuildFile; productRef = 3277AD772878B76700EFD47C /* Introspect */; };
 		32971DE9285B872300FD438E /* AssetsDownloader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32971DE8285B872300FD438E /* AssetsDownloader.swift */; };
 		32972D902867371700FD438E /* AppResources in Resources */ = {isa = PBXBuildFile; fileRef = 32972D8F2867371700FD438E /* AppResources */; };
 		32B14F8D2821588200E4AC86 /* FavoriteButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32B14F8C2821588200E4AC86 /* FavoriteButton.swift */; };
@@ -112,6 +113,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				321ECC5B286741CC00EA69B4 /* Zip in Frameworks */,
+				3277AD782878B76700EFD47C /* Introspect in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -284,6 +286,7 @@
 			name = "DDR BPM";
 			packageProductDependencies = (
 				321ECC5A286741CC00EA69B4 /* Zip */,
+				3277AD772878B76700EFD47C /* Introspect */,
 			);
 			productName = "DDR BPM";
 			productReference = 3269E9DE2820F8ED002C96CB /* DDR BPM.app */;
@@ -360,6 +363,7 @@
 			packageReferences = (
 				32971DEA285C227800FD438E /* XCRemoteSwiftPackageReference "Zip" */,
 				321ECC59286741CC00EA69B4 /* XCRemoteSwiftPackageReference "Zip" */,
+				3277AD762878B76700EFD47C /* XCRemoteSwiftPackageReference "SwiftUI-Introspect" */,
 			);
 			productRefGroup = 3269E9DF2820F8ED002C96CB /* Products */;
 			projectDirPath = "";
@@ -774,6 +778,14 @@
 				minimumVersion = 2.1.0;
 			};
 		};
+		3277AD762878B76700EFD47C /* XCRemoteSwiftPackageReference "SwiftUI-Introspect" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/siteline/SwiftUI-Introspect.git";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
 		32971DEA285C227800FD438E /* XCRemoteSwiftPackageReference "Zip" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/marmelroy/Zip";
@@ -789,6 +801,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 321ECC59286741CC00EA69B4 /* XCRemoteSwiftPackageReference "Zip" */;
 			productName = Zip;
+		};
+		3277AD772878B76700EFD47C /* Introspect */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 3277AD762878B76700EFD47C /* XCRemoteSwiftPackageReference "SwiftUI-Introspect" */;
+			productName = Introspect;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
