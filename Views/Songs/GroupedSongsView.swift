@@ -31,38 +31,35 @@ struct GroupedSongsView: View {
     
     var body: some View {
         let songGroups = viewModel.songGroups
-        if songGroups.count > 0{
-            ScrollView{
-                LazyVStack(alignment:.leading, pinnedViews: [.sectionHeaders]){
-                    ForEach(0 ..< songGroups.count, id:\.self) { i in
-                        let songGroup = songGroups[i]
-                        Section(header: header(songGroup)){
-                            if selectedGroup == songGroup.id{
-                                SongsInGroup(songGroup: songGroup)
-                                    .padding(.vertical, 0)
-                                    .padding(.horizontal)
-                            }
-                            Divider()
+        switch songGroups.count {
+        case 0:
+            Text("No songs matching filters.")
+        case 1:
+            LazyVStack(alignment:.leading){
+                header(songGroups[0], chevron: false)
+                
+                SongsInGroup(songGroup: songGroups[0])
+                    .padding(.vertical, 0)
+                    .padding(.horizontal)
+            }
+        default:
+            LazyVStack(alignment:.leading, pinnedViews: [.sectionHeaders]){
+                ForEach(0 ..< songGroups.count, id:\.self) { i in
+                    let songGroup = songGroups[i]
+                    Section(header: header(songGroup)){
+                        if selectedGroup == songGroup.id{
+                            SongsInGroup(songGroup: songGroup)
+                                .padding(.vertical, 0)
+                                .padding(.horizontal)
                         }
+                        Divider()
                     }
                 }
             }
-            .onChange(of: viewModel.songGroups) {songGroups in
-                if songGroups.count == 1{
-                    selectedGroup = songGroups[0].id
-                } else {
-                    selectedGroup = ""
-                }
-            }
-        } else {
-            List{
-                Text("No songs matching filters.")
-            }
-                .listStyle(.plain)
         }
     }
     
-    func header(_ songGroup: SongGroup) -> some View {
+    func header(_ songGroup: SongGroup, chevron: Bool = true) -> some View {
         var str : String = ""
         switch songGroup.sortType{
         case .level:
@@ -87,7 +84,9 @@ struct GroupedSongsView: View {
                 .foregroundColor(.gray)
                 .font(.title3)
             Spacer()
-            Image(systemName: expanded ? "chevron.down" : "chevron.right")
+            if chevron{
+                Image(systemName: expanded ? "chevron.down" : "chevron.right")
+            }
         }
         .padding(.horizontal)
         .frame(maxWidth:.infinity, minHeight: expanded ? 50 : 30)

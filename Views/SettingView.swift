@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Introspect
 
 enum FocusField: Hashable {
     case readSpeedField
@@ -26,47 +27,53 @@ struct SettingView: View {
     @FocusState private var focusedField : FocusField?
     
     
-    var body: some View { NavigationView{
-        VStack{
-            List{
-                Section{
-                    ReadSpeedInput(focusedField: _focusedField)
+    var body: some View {
+        NavigationView{
+            VStack{
+                List{
+                    Section{
+                        ReadSpeedInput(focusedField: _focusedField)
+                    }
+                    
+                    Section{
+                        UpdateButtons(showing: $showingConfirmation)
+                        AssetsButton(showing: $showingConfirmation)
+                    }
+                    
+                    Section{
+                        ClearFavsButton(showing: $showingConfirmation)
+                        //                    ClearCoursesButton(showing: $showingConfirmation)
+                        
+                    }
+                    
+                    Section{
+                        ResetAppButton(showing: $showingConfirmation)
+                    }
+                    
+                    Section{
+                        Link(destination: URL(string: "https://github.com/xiexingwu/DDR-BPM-issues")!) {
+                            Label("Report bug / Give feedback", systemImage: "ant")
+                        }
+                        Link(destination: URL(string: "https://www.paypal.com/donate/?hosted_button_id=2R64RY6ZL52EW")!){
+                            Label("Support me (PayPal)", systemImage: "dollarsign.circle")
+                        }
+                    }
                 }
-
-                Section{
-                    UpdateButtons(showing: $showingConfirmation)
-                    AssetsButton(showing: $showingConfirmation)
-                }
-            
-                Section{
-                    ClearFavsButton(showing: $showingConfirmation)
-//                    ClearCoursesButton(showing: $showingConfirmation)
-
-                }
+//                .introspectTableView{ tableView in
+//                    tableView.keyboardDismissMode = .onDrag
+//                }
                 
-                Section{
-                    ResetAppButton(showing: $showingConfirmation)
-                }
-
-                Section{
-                    Link(destination: URL(string: "https://github.com/xiexingwu/DDR-BPM-issues")!) {
-                        Label("Report bug / Give feedback", systemImage: "ant")
-                    }
-                    Link(destination: URL(string: "https://www.paypal.com/donate/?hosted_button_id=2R64RY6ZL52EW")!){
-                        Label("Support me (PayPal)", systemImage: "dollarsign.circle")
-                    }
-                }
             }
-            
+            .navigationBarTitle("Settings")
         }
-        .navigationBarTitle("Settings")
-    }}
+        .hideKeyboardWhenTappedAround()
+        
+    }
 }
 
 
 struct ReadSpeedInput : View {
     @EnvironmentObject var viewModel: ViewModel
-    //    var focusedField: FocusState<FocusField?>.Binding
     @FocusState var focusedField: FocusField?
     
     @State private var tempReadSpeed : Int?
@@ -84,13 +91,22 @@ struct ReadSpeedInput : View {
     var body: some View {
         HStack {
             Text("Set read speed:")
+                .onTapGesture {
+                    focusedField = .readSpeedField
+                }
             
             TextField(viewModel.userReadSpeed.formatted(),
                       value: $tempReadSpeed,
                       format: .number
             )
+            .keyboardType(.numberPad)
             .focused($focusedField, equals: .readSpeedField)
             .frame(maxWidth: .infinity)
+            .onChange(of: focusedField) { newFocus in
+                if newFocus != .readSpeedField {
+                    tempReadSpeed = nil
+                }
+            }
             
             Button{
                 if validInput() {

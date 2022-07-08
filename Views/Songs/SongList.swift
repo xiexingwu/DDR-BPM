@@ -7,13 +7,7 @@
 
 import SwiftUI
 
-//prefix func ! (value: Binding<Bool>) -> Binding<Bool> {
-//    Binding<Bool>(
-//        get: { !value.wrappedValue },
-//        set: { value.wrappedValue = !$0 }
-//    )
-//}
-
+import Introspect
 
 
 struct SongList: View {
@@ -129,7 +123,12 @@ struct SongList: View {
         VStack{
             
             /* Song Grouping */
-            GroupedSongsView()
+            ScrollView{
+                GroupedSongsView()
+            }
+            .introspectScrollView{ scrollView in
+                scrollView.keyboardDismissMode = .onDrag
+            }
             
             /* Lower-screen filter */
             ToolbarSongFilter()
@@ -176,34 +175,17 @@ struct NavigableSongList: View {
     @EnvironmentObject var modelData: ModelData
     @EnvironmentObject var viewModel: ViewModel
     
-    @Environment(\.dismissSearch) var dismissSearch
-    @State private var searchText : String = ""
-    
-    private var filteredSongs : [Song] { filterSongsByName(modelData.songs, searchText) }
     
     var body: some View{
         NavigationView{
             SongList()
         }
-        .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always)) {
-            ForEach(filteredSongs) { song in
-                Text(song.title)
-                    .searchCompletion(song.titletranslit)
-                    .searchCompletion(song.title)
-            }
+        .searchable(text: $viewModel.searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Song name") {
         }
         .keyboardType(.alphabet)
         .disableAutocorrection(true)
         .textInputAutocapitalization(.never)
-        .onSubmit(of: .search){
-            viewModel.searchText = searchText
-            let searchedSongs = filteredSongs.filter{$0.titletranslit.lowercased() == searchText.lowercased() || $0.title.lowercased() == searchText.lowercased()}
-            if searchedSongs.count == 1 {
-                viewModel.activeSongDetail[0] = searchedSongs[0].id
-            }
-            dismissSearch()
-        }
-        
+
     }
 }
 
