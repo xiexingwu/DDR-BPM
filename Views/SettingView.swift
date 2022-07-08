@@ -36,16 +36,28 @@ struct SettingView: View {
                 Section{
                     UpdateButtons(showing: $showingConfirmation)
                     AssetsButton(showing: $showingConfirmation)
-                    ClearFavsButton(showing: $showingConfirmation)
-//                    ClearCoursesButton(showing: $showingConfirmation)
                 }
             
                 Section{
+                    ClearFavsButton(showing: $showingConfirmation)
+//                    ClearCoursesButton(showing: $showingConfirmation)
+
+                }
+                
+                Section{
                     ResetAppButton(showing: $showingConfirmation)
+                }
+
+                Section{
+                    Link(destination: URL(string: "https://github.com/xiexingwu/DDR-BPM-issues")!) {
+                        Label("Report bug / Give feedback", systemImage: "ant")
+                    }
+                    Link(destination: URL(string: "https://www.paypal.com/donate/?hosted_button_id=2R64RY6ZL52EW")!){
+                        Label("Support me (PayPal)", systemImage: "dollarsign.circle")
+                    }
                 }
             }
             
-            Link("Support me (PayPal)", destination: URL(string: "https://www.paypal.com/donate/?hosted_button_id=2R64RY6ZL52EW")!)
         }
         .navigationBarTitle("Settings")
     }}
