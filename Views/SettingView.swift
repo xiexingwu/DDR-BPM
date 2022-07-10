@@ -59,14 +59,14 @@ struct SettingView: View {
                         }
                     }
                 }
-//                .introspectTableView{ tableView in
-//                    tableView.keyboardDismissMode = .onDrag
-//                }
+                .introspectTableView{ tableView in
+                    tableView.keyboardDismissMode = .onDrag
+                }
                 
             }
-            .navigationBarTitle("Settings")
+            .navigationTitle("Settings")
+            .navigationBarTitleDisplayMode(.inline)
         }
-        .hideKeyboardWhenTappedAround()
         
     }
 }
@@ -105,6 +105,11 @@ struct ReadSpeedInput : View {
             .onChange(of: focusedField) { newFocus in
                 if newFocus != .readSpeedField {
                     tempReadSpeed = nil
+                }
+            }
+            .toolbar{
+                ToolbarItem(placement: .keyboard){
+                    ToolbarKeyboard(cancelAction: {focusedField = .none} )
                 }
             }
             

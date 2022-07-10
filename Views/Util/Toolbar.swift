@@ -134,3 +134,21 @@ struct ToolbarCourseFilter: View {
         }
     }
 }
+
+struct ToolbarKeyboard: View {
+    var cancelAction: () -> Void
+    
+    var body: some View{
+        HStack{
+            Spacer()
+            Button{
+                cancelAction()
+            } label: {
+                Text("Cancel")
+                    .foregroundColor(.blue)
+                    .underline()
+            }
+            .buttonStyle(.plain)
+        }
+    }
+}

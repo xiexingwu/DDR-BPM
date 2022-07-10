@@ -132,35 +132,41 @@ struct BPMSheet: View{
     }
 
     var body: some View{
-        VStack(alignment:.center){
-            Text("BPM Wheel")
-                .font(.title2)
-            
-            Text("min.max for variable BPM")
-                .font(.subheadline)
-            
-            Spacer()
-            
-            TextField("BPM: 200", text:$bpmRange)
-                .focused($bpmInputFocused)
-                .font(.title)
-                .keyboardType(.decimalPad)
-                .multilineTextAlignment(.center)
-                .frame(maxWidth: 250)
-                .onTapGesture {
-                    bpmRange = ""
-                }
-                .onSubmit {
-                    bpmInputFocused = false
-                }
-            
-            Spacer()
-            
-            BPMwheel(bpmRange: cleanInput(bpmRange), wheelHeight: 200)
-            
-            Spacer()
+        NavigationView{
+            VStack(alignment:.center){
+                Text("min.max for variable BPM")
+                    .font(.subheadline)                
+                
+                Spacer()
+                
+                TextField("BPM: 200", text:$bpmRange)
+                    .focused($bpmInputFocused)
+                    .font(.title)
+                    .keyboardType(.decimalPad)
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: 250)
+                    .onTapGesture {
+                        bpmRange = ""
+                    }
+                    .onSubmit {
+                        bpmInputFocused = false
+                    }
+                    .toolbar{
+                        ToolbarItem(placement: .keyboard){
+                            ToolbarKeyboard(cancelAction: {bpmInputFocused = false} )
+                        }
+                    }
+
+                Spacer()
+                
+                BPMwheel(bpmRange: cleanInput(bpmRange), wheelHeight: 200)
+                
+                Spacer()
+            }
+            .navigationTitle("BPM Wheel")
+            .navigationBarTitleDisplayMode(.inline)
+            .hideKeyboardWhenTappedAround()
         }
-        .hideKeyboardWhenTappedAround()
 
     }
 }
