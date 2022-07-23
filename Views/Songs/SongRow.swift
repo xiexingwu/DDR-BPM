@@ -216,21 +216,3 @@ struct NavigableSongRow: View {
     }
 }
 
-struct SongRow_Previews: PreviewProvider {
-    static let favorites = Favorites()
-    static let viewModel = ViewModel()
-    static let modelData = ModelData()
-    
-    static var songs = modelData.songs
-    static var previews: some View {
-        Group{
-            SongRow(song: songs[293])
-            SongRow(song: songs[293], difficulty: .basic)
-            SongRow(song: songs[7], isMinimal: true)
-        }
-        .environmentObject(modelData)
-        .environmentObject(viewModel)
-        .environmentObject(favorites)
-        .previewLayout(.fixed(width: 300, height: 300))
-    }
-}

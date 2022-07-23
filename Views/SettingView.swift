@@ -308,6 +308,8 @@ struct UpdateButtons : View {
         } label: {
             HStack{
                 Label(labelText, systemImage: systemImage)
+                Text(viewModel.updateProgressText)
+                    .font(.caption)
             }
         }
         .disabled(viewModel.updateStatus == .progressing || viewModel.assetsStatus == .progressing || viewModel.updateStatus == .checking || viewModel.assetsStatus == .checking)
@@ -340,14 +342,17 @@ struct UpdateButtons : View {
             case .checking, .progressing:
                 ()
             case .fail:
-                await downloader.checkUpdates(checkHashes: true)
+                await downloader.checkUpdates(fix: true)
                 await downloader.updateAssets(fix: true)
             default:
-                await downloader.checkUpdates(checkHashes: true)
+                await downloader.checkUpdates(fix: true)
             }
         } label: {
             HStack{
                 Label(labelText, systemImage: systemImage)
+                Spacer()
+                Text(viewModel.assetsProgressText)
+                    .font(.caption)
             }
         }
         .disabled(viewModel.updateStatus == .progressing || viewModel.assetsStatus == .progressing || viewModel.updateStatus == .checking || viewModel.assetsStatus == .checking)

@@ -18,7 +18,7 @@ enum InitialLoad: String {
 
 final class ModelData: ObservableObject {
     
-//    @Published var initialLoad: InitialLoad = .none
+    @AppStorage("modelBuild") var version: String?
     @AppStorage("initialLoad") var initialLoad: InitialLoad = .none
 
     var songs: [Song] = []
@@ -30,9 +30,22 @@ final class ModelData: ObservableObject {
     }
 
     init () {
+        checkVersion()
+        
         initialSetup()
         
         loadData()
+    }
+    
+    func checkVersion() {
+        if let newVer = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String {
+            if let oldVer = version {
+                if oldVer == newVer { return }
+            }
+            defaultLogger.info("new Version \(newVer) detected.")
+            initialLoad = .none
+            version = newVer
+        }
     }
     
     func initialSetup(forceReload: Bool = false){

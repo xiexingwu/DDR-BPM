@@ -57,7 +57,9 @@ class ViewModel : ObservableObject{
     
     /* Updates and assets validation */
     @Published var updateStatus: UpdateStatus = .none
+    @Published var updateProgressText : String = ""
     @Published var assetsStatus: UpdateStatus = .none
+    @Published var assetsProgressText : String = ""
     @AppStorage("lastUpdateDate") var lastUpdateDate: Int = Int(Date(timeIntervalSinceNow: -Date.week ))
 
 }

@@ -305,8 +305,8 @@ struct Song: Hashable, Codable, Identifiable {
     var version: String
     var songLength: Float
     var perChart: Bool
+    var ssc: Bool
     
-    var resources: Resources
     var levels: Levels
     var chart: [Chart]
     
@@ -318,7 +318,7 @@ struct Song: Hashable, Codable, Identifiable {
         }
 
         // Legacy jacket folder
-        if let image = UIImage(contentsOfFile: DOCUMENTS_URL.appendingPathComponent("jackets/\(resources.jacket)").path) {
+        if let image = UIImage(contentsOfFile: DOCUMENTS_URL.appendingPathComponent("jackets/\(name)-jacket.png").path) {
             return Image(uiImage: image)
         }
         
@@ -330,26 +330,10 @@ struct Song: Hashable, Codable, Identifiable {
     }
 
 }
-//    enum DecodingKeys: String, CodingKey {
-//        case title, titletranslit, version, songLength, perChart, resources, levels, chart
-//    }
-//    init(from decoder: Decoder) throws {
-//        let container = try decoder.container(keyedBy: DecodingKeys.self)
-//        title = try container.decode(String.self, forKey: .title)
-//        titletranslit = try container.decode(String.self, forKey: .titletranslit)
-//        version = try container.decode(String.self, forKey: .version)
-//        songLength = try container.decode(Float.self, forKey: .songLength)
-//        perChart = try container.decode(Bool.self, forKey: .perChart)
-//        resources = try container.decode(Resources.self, forKey: .resources)
-//        levels = try container.decode(Levels.self, forKey: .levels)
-//        chart = try container.decode([Chart].self, forKey: .chart)
-//    }
+
 
 /* Nested types */
-struct Resources: Hashable, Codable{
-    //        var simfile: String
-    var jacket: String
-}
+
 
 struct Levels: Hashable, Codable{
     var single: DifficultyLevels?

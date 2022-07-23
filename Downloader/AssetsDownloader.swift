@@ -13,7 +13,7 @@ private let GITHUB_TOKEN = "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"
 
 private let GITHUB_RAW = "https://raw.githubusercontent.com/xiexingwu/DDR-BPM-assets/main/"
 private func GITHUB_RAW_SONG (_ songName : String) -> String { GITHUB_RAW + "data/" + songName + ".json" }
-private func GITHUB_RAW_JACKET (_ songName : String) -> String { GITHUB_RAW + "jackets/" + songName + "-jacket.png" }
+private func GITHUB_RAW_JACKET (_ songName : String) -> String { GITHUB_RAW + "jackets-lowres/" + songName + "-jacket.png" }
 
 private let GITHUB_LATEST = "https://github.com/xiexingwu/DDR-BPM-assets/releases/download/latest/"
 
@@ -57,6 +57,10 @@ class AssetsDownloader: NSObject, ObservableObject, URLSessionTaskDelegate {
     var obsoleteSongs: [String] = []
     var changedCourses: Bool = false
 
+    var fix : Bool = false
+    var fixesNeeded : Int = 0
+    var fixes : Int = 0
+    
     func defaultGithubDownload(_ urlString: String) async throws -> (URL, URLResponse) {
         enum URLErrors : Error {
             case badURL
@@ -100,32 +104,58 @@ extension AssetsDownloader {
                 throw ModelError.missingViewModel
             }
             
-            // Start updates
-            if fix{
-                DispatchQueue.main.async{
+            self.fix = fix;
+            fixes = 0
+
+            DispatchQueue.main.async{
+                if self.fix {
                     self.viewModel!.assetsStatus = .progressing
-                }
-            } else {
-                DispatchQueue.main.async{
+                } else {
                     self.viewModel!.updateStatus = .progressing
                 }
             }
-            
+
+
             var success : Bool = true
             if changedCourses{
                 success = await updateCourses() && success
+                fixes += 1
+                DispatchQueue.main.async{
+                    if fix{
+                        self.viewModel!.assetsProgressText = "\(self.fixes)/\(self.fixesNeeded)"
+                    } else {
+                        self.viewModel!.updateProgressText = "\(self.fixes)/\(self.fixesNeeded)"
+                    }
+                }
             }
             
             for songName in missingSongs {
                 success = await downloadRawSong(songName) && success
+                fixes += 1
                 if viewModel!.jacketsDownloaded {
                     success = await downloadRawJacket(songName) && success
+                    fixes += 1
+                }
+                DispatchQueue.main.async{
+                    if fix{
+                        self.viewModel!.assetsProgressText = "\(self.fixes)/\(self.fixesNeeded)"
+                    } else {
+                        self.viewModel!.updateProgressText = "\(self.fixes)/\(self.fixesNeeded)"
+                    }
                 }
             }
             
             if viewModel!.jacketsDownloaded {
                 for songName in missingJackets {
                     success = await downloadRawJacket(songName) && success
+                    fixes += 1
+                    DispatchQueue.main.async{
+                        if fix{
+                            self.viewModel!.assetsProgressText = "\(self.fixes)/\(self.fixesNeeded)"
+                        } else {
+                            self.viewModel!.updateProgressText = "\(self.fixes)/\(self.fixesNeeded)"
+                        }
+                    }
                 }
             }
             
@@ -134,10 +164,10 @@ extension AssetsDownloader {
             }
 
             // Finalise updates
-            self.modelData!.loadData()
             switch (fix, success){
             case (true, true):
                 DispatchQueue.main.async{
+                    self.modelData!.loadData()
                     self.viewModel!.assetsStatus = .success
                 }
             case (true, false):
@@ -146,11 +176,20 @@ extension AssetsDownloader {
                 }
             case (false, true):
                 DispatchQueue.main.async{
-                    self.viewModel!.updateStatus = .success
+                    self.modelData!.loadData()
+                        self.viewModel!.updateStatus = .success
                 }
             case (false, false):
                 DispatchQueue.main.async{
                     self.viewModel!.updateStatus = .fail
+                }
+            }
+
+            DispatchQueue.main.async{
+                if fix{
+                    self.viewModel!.assetsProgressText = ""
+                } else {
+                    self.viewModel!.updateProgressText = ""
                 }
             }
         }
@@ -271,7 +310,9 @@ extension AssetsDownloader {
 /* Update checking */
 extension AssetsDownloader {
     
-    func checkUpdates(checkHashes: Bool = false) async {
+    func checkUpdates(fix: Bool = false) async {
+        self.fix = fix
+        
         do {
             if modelData == nil {
                 throw ModelError.missingModelData
@@ -280,7 +321,7 @@ extension AssetsDownloader {
                 throw ModelError.missingViewModel
             }
             
-            if checkHashes{
+            if fix{
                 DispatchQueue.main.async{
                     self.viewModel!.assetsStatus = .checking
                 }
@@ -290,33 +331,39 @@ extension AssetsDownloader {
                 }
             }
 
-            var needUpdate = false
 
-            needUpdate = try await checkSongs(checkHashes: checkHashes) || needUpdate
-            needUpdate = try await checkJackets(checkHashes: checkHashes) || needUpdate
-            needUpdate = try await checkCourses() || needUpdate
+            try await checkSongs(checkHashes: fix)
+            try await checkJackets(checkHashes: fix)
+            try await checkCourses()
             
-            switch (checkHashes, needUpdate){
-            case (true, true):
-                DispatchQueue.main.async{
-                    self.viewModel!.assetsStatus = .available
-                    self.viewModel!.lastUpdateDate = Int(Date())
-                }
-            case (true, false):
-                DispatchQueue.main.async{
-                    self.viewModel!.assetsStatus = .success
-                }
-            case (false, true):
-                DispatchQueue.main.async{
-                    self.viewModel!.updateStatus = .available
-                    self.viewModel!.lastUpdateDate = Int(Date())
-                }
-            case (false, false):
-                DispatchQueue.main.async{
-                    self.viewModel!.updateStatus = .success
+            fixesNeeded = missingSongs.count + missingJackets.count + (changedCourses ? 1 : 0)
+
+            DispatchQueue.main.async{
+                switch self.fix {
+                case true:
+                    switch self.fixesNeeded > 0 {
+                    case true:
+                        self.viewModel!.assetsStatus = .available
+                        self.viewModel!.lastUpdateDate = Int(Date())
+                        self.viewModel!.assetsProgressText = "0/\(self.fixesNeeded)"
+                        
+                    case false:
+                        self.viewModel!.assetsStatus = .success
+                    }
+                    
+                case false:
+                    switch self.fixesNeeded > 0 {
+                    case true:
+                        self.viewModel!.updateStatus = .available
+                        self.viewModel!.lastUpdateDate = Int(Date())
+                        self.viewModel!.updateProgressText = "0/\(self.fixesNeeded)"
+
+                    case false:
+                        self.viewModel!.updateStatus = .success
+                    }
                 }
             }
-            
+
         }
         catch ModelError.missingViewModel, ModelError.missingModelData {
             defaultLogger.error("Missing ViewModel or ModelData")
@@ -335,7 +382,7 @@ extension AssetsDownloader {
 /* File verification */
 extension AssetsDownloader {
 
-    private func checkSongs(checkHashes: Bool = false) async throws -> Bool {
+    private func checkSongs(checkHashes: Bool = false) async throws {
         // Download files
         let (allSongsURL, allSongsResponse) = try await defaultGithubDownload(GITHUB_LATEST + ALL_SONGS_FILE)
         let (hashedSongsURL, hashedSongsResponse) = try await defaultGithubDownload(GITHUB_LATEST + HASHED_SONGS_FILE)
@@ -387,12 +434,12 @@ extension AssetsDownloader {
             defaultLogger.error("Failed to find \(SONGS_FOLDER_URL) when checking for obsolete songs")
         }
         
-        return (missingSongs.count + obsoleteSongs.count) > 0
+//        return (missingSongs.count + obsoleteSongs.count) > 0
     }
     
     
     
-    private func checkJackets(checkHashes: Bool = false) async throws -> Bool {
+    private func checkJackets(checkHashes: Bool = false) async throws {
         // Download files
         let (allSongsURL, allSongsResponse) = try await defaultGithubDownload(GITHUB_LATEST + ALL_SONGS_FILE)
         let (hashedJacketsURL, hashedJacketsResponse) = try await defaultGithubDownload(GITHUB_LATEST + HASHED_JACKETS_FILE)
@@ -439,11 +486,11 @@ extension AssetsDownloader {
             defaultLogger.error("Failed to list contents of \(JACKETS_FOLDER_URL)")
         }
 
-        return missingJackets.count > 0
+//        return missingJackets.count > 0
     }
     
     
-    private func checkCourses() async throws -> Bool {
+    private func checkCourses() async throws {
         // Download files
         let (hashedCoursesURL, hashedCoursesResponse) = try await defaultGithubDownload(GITHUB_LATEST + HASHED_COURSES_FILE)
         if !responseSucceeded(hashedCoursesResponse) {
@@ -469,7 +516,7 @@ extension AssetsDownloader {
             defaultLogger.debug("Hashes:\n\tlocal: \(fileHash)\n\tremote: \(hashedCourses[0])")
         }
         
-        return changedCourses
+//        return changedCourses
     }
     
 }

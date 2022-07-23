@@ -38,7 +38,9 @@ struct NavigableCourseRow: View {
             .buttonStyle(.plain)
 
             ForEach(course.songs, id:\.self){ courseSong in
-                SongRow(song: courseSong.song!, difficulty: courseSong.difficulty, isMinimal: true)
+                if courseSong.song != nil{
+                    SongRow(song: courseSong.song!, difficulty: courseSong.difficulty, isMinimal: true)
+                }
             }
             
         }

@@ -206,19 +206,3 @@ struct SongDetail: View {
     }
 }
 
-
-struct SongDetail_Previews: PreviewProvider {
-    static let favorites = Favorites()
-    static let viewModel = ViewModel()
-    static let modelData = ModelData()
-    
-    static var previews: some View {
-        Group{
-            SongDetail(song: modelData.songs[16])
-            SongDetail(song: modelData.songs[19])
-        }
-        .environmentObject(modelData)
-        .environmentObject(viewModel)
-        .environmentObject(favorites)
-    }
-}
