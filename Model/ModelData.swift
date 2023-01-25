@@ -69,7 +69,7 @@ final class ModelData: ObservableObject {
                 }
             }
             
-            // Delete existing data files (but not jackets)
+            // Delete existing data and jackets
             if FileManager.default.fileExists(atPath: SONGS_FOLDER_URL.path) {
                 do {
                     try FileManager.default.removeItem(at: SONGS_FOLDER_URL)
@@ -77,7 +77,14 @@ final class ModelData: ObservableObject {
                 catch {
                     defaultLogger.error("Failed to remove \(SONGS_FOLDER_URL.path)")
                 }
-                
+
+                do {
+                    try FileManager.default.removeItem(at: JACKETS_FOLDER_URL)
+                }
+                catch {
+                    defaultLogger.error("Failed to remove \(JACKETS_FOLDER_URL.path)")
+                }
+
                 do {
                     try FileManager.default.removeItem(at: COURSES_FILE_URL)
                 }
@@ -94,13 +101,16 @@ final class ModelData: ObservableObject {
             defaultLogger.debug("Copying \(BUNDLE_SONGS_FOLDER_URL.path)")
             try FileManager.default.copyItem(at: BUNDLE_SONGS_FOLDER_URL, to: SONGS_FOLDER_URL)
 
+            defaultLogger.debug("Copying \(BUNDLE_JACKETS_FOLDER_URL.path)")
+            try FileManager.default.copyItem(at: BUNDLE_JACKETS_FOLDER_URL, to: JACKETS_FOLDER_URL)
+
             defaultLogger.debug("Copying \(BUNDLE_COURSES_FILE_URL.path)")
             try FileManager.default.copyItem(at: BUNDLE_COURSES_FILE_URL, to: COURSES_FILE_URL)
 
-            if !FileManager.default.fileExists(atPath: JACKETS_FOLDER_URL.path){
-                defaultLogger.debug("Creating \(JACKETS_FOLDER_URL.path)")
-                try FileManager.default.createDirectory(at: JACKETS_FOLDER_URL, withIntermediateDirectories: true)
-            }
+//            if !FileManager.default.fileExists(atPath: JACKETS_FOLDER_URL.path){
+//                defaultLogger.debug("Creating \(JACKETS_FOLDER_URL.path)")
+//                try FileManager.default.createDirectory(at: JACKETS_FOLDER_URL, withIntermediateDirectories: true)
+//            }
 
             initialLoad = .first
         }

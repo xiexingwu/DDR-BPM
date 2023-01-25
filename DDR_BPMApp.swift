@@ -12,6 +12,7 @@ let defaultLogger = Logger()
 
 let BUNDLE_APPDATA_FOLDER_URL = Bundle.main.url(forResource: "AppResources", withExtension: nil)!
 let BUNDLE_SONGS_FOLDER_URL = BUNDLE_APPDATA_FOLDER_URL.appendingPathComponent("data")
+let BUNDLE_JACKETS_FOLDER_URL = BUNDLE_APPDATA_FOLDER_URL.appendingPathComponent("jackets")
 let BUNDLE_COURSES_FILE_URL = BUNDLE_APPDATA_FOLDER_URL.appendingPathComponent("courses.json")
 
 let DOCUMENTS_URL: URL = try! FileManager.default.url(for: .documentDirectory,

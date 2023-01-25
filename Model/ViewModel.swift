@@ -50,7 +50,7 @@ class ViewModel : ObservableObject{
     @AppStorage("userShowLIFE4Courses") var userShowLIFE4Courses : Bool = true
     @AppStorage("userShowCustomCourses") var userShowCustomCourses : Bool = true
 
-    @AppStorage("jacketsDownloaded") var jacketsDownloaded : Bool = false
+    @AppStorage("jacketsDownloaded") var jacketsDownloaded : Bool = true
     @Published var downloadProgress : Double = -1
     @Published var downloadProgressText : String = ""
     @Published var downloadStatus : DownloadStatus = .none
@@ -81,7 +81,7 @@ extension ViewModel {
         userShowLIFE4Courses = true
         userShowCustomCourses = true
         
-        jacketsDownloaded = false
+        jacketsDownloaded = true
         
         lastUpdateDate = Int(Date())
     }

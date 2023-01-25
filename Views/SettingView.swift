@@ -37,7 +37,7 @@ struct SettingView: View {
                     
                     Section{
                         UpdateButtons(showing: $showingConfirmation)
-                        AssetsButton(showing: $showingConfirmation)
+//                        AssetsButton(showing: $showingConfirmation)
                     }
                     
                     Section{
@@ -187,10 +187,12 @@ struct ClearCoursesButton : View {
     }
 }
 
+/* TODO: Chagne to AsyncButton like in CheckUpdatesButton */
 struct AssetsButton : View {
     @EnvironmentObject var viewModel: ViewModel
     @Binding var showing: ShowingConfirmation
-    @StateObject var downloader = AssetsDownloader()
+    
+    private let downloader = AssetsDownloader.shared
 
     var body: some View {
         

@@ -13,7 +13,8 @@ import Combine
 struct BPMwheel: View {
     var bpmRange : String = "200"
     var dominantBPM : Int? = nil
-    
+    var wheelHeight : CGFloat = 150
+
     @EnvironmentObject var viewModel : ViewModel
 
     @State private var speedMod: Double = 1
@@ -33,7 +34,6 @@ struct BPMwheel: View {
         return String(speed)
     }
     
-    var wheelHeight : CGFloat = 80
 
     private var BPMNCols : Int {
         if isVariableBPMRange(bpmRange){

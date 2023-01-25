@@ -25,7 +25,7 @@ private let HASHED_COURSES_FILE = "hashed_courses.txt"
 private let DATA_ZIP = "data.zip"
 private let JACKETS_ZIP = "jackets.zip"
 
-let ASSETS_SIZE = "350 MB"
+let ASSETS_SIZE = "40 MB"
 
 
 enum GitHubError: Error {
