@@ -104,7 +104,7 @@ struct SongDetail: View {
     }
     
     private var BPMText: some View{
-        var bpmStr = chart.bpmRange
+        var bpmStr = chart.bpm_range
         if hasVariableBPM(chart){
             let bpms = getMinMaxBPM(bpmStr)
             if chart.true_min < bpms[0]{
@@ -144,7 +144,7 @@ struct SongDetail: View {
                     .frame(maxWidth: .infinity)
                 Text("Duration (s)")
                     .frame(maxWidth: .infinity)
-                Text("Beats @\(chart.dominant_bpm)")
+                Text("Beats")
                     .frame(maxWidth: .infinity)
             }
             
@@ -154,7 +154,7 @@ struct SongDetail: View {
                         .frame(maxWidth: .infinity)
                     Text(String(format: "%.2f", stop.dur))
                         .frame(maxWidth: .infinity)
-                    Text(String(format: "%.2f", stop.beats))
+                    Text(String(format: "%.2f @ \(stop.beats[0].bpm)", stop.beats[0].val))
                         .frame(maxWidth: .infinity)
                 }
             }
@@ -176,7 +176,7 @@ struct SongDetail: View {
                 VStack{
                     BPMText
                     
-                    BPMwheel(bpmRange : song.charts[chartIndex].bpmRange, dominantBPM: song.charts[chartIndex].dominant_bpm)
+                    BPMwheel(bpmRange : song.charts[chartIndex].bpm_range, dominantBPM: song.charts[chartIndex].dominant_bpm)
                 }.padding([.top, .bottom], 50)
 
                 if chart.bpms.count > 1 {

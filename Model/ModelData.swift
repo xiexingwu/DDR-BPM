@@ -56,19 +56,6 @@ final class ModelData: ObservableObject {
         if initialLoad == .done { return }
 
         do {
-            // Legacy: Migrate jackets folder
-            let legacyJacketsFolderURL = DOCUMENTS_URL.appendingPathComponent("jackets")
-            if FileManager.default.fileExists(atPath: legacyJacketsFolderURL.path){
-                defaultLogger.debug("Migrating \(legacyJacketsFolderURL.path)")
-                try? FileManager.default.removeItem(at: JACKETS_FOLDER_URL)
-                do {
-                    try FileManager.default.moveItem(at: legacyJacketsFolderURL, to: JACKETS_FOLDER_URL)
-                }
-                catch {
-                    defaultLogger.error("Failed to migrate legacy jackets: \(legacyJacketsFolderURL.path)")
-                }
-            }
-            
             // Delete existing data and jackets
             if FileManager.default.fileExists(atPath: SONGS_FOLDER_URL.path) {
                 do {
@@ -98,13 +85,13 @@ final class ModelData: ObservableObject {
                 try FileManager.default.createDirectory(at: APPDATA_FOLDER_URL, withIntermediateDirectories: true)
             }
             
-            defaultLogger.debug("Copying \(BUNDLE_SONGS_FOLDER_URL.path)")
+            defaultLogger.debug("Copying \(BUNDLE_SONGS_FOLDER_URL.path) to \(SONGS_FOLDER_URL.path)")
             try FileManager.default.copyItem(at: BUNDLE_SONGS_FOLDER_URL, to: SONGS_FOLDER_URL)
 
-            defaultLogger.debug("Copying \(BUNDLE_JACKETS_FOLDER_URL.path)")
+            defaultLogger.debug("Copying \(BUNDLE_JACKETS_FOLDER_URL.path) to \(JACKETS_FOLDER_URL.path)")
             try FileManager.default.copyItem(at: BUNDLE_JACKETS_FOLDER_URL, to: JACKETS_FOLDER_URL)
 
-            defaultLogger.debug("Copying \(BUNDLE_COURSES_FILE_URL.path)")
+            defaultLogger.debug("Copying \(BUNDLE_COURSES_FILE_URL.path) to \(COURSES_FILE_URL.path)")
             try FileManager.default.copyItem(at: BUNDLE_COURSES_FILE_URL, to: COURSES_FILE_URL)
 
 //            if !FileManager.default.fileExists(atPath: JACKETS_FOLDER_URL.path){
@@ -211,7 +198,6 @@ func load<T: Decodable>(_ file: URL) -> T {
     
     do {
         let decoder = JSONDecoder()
-        decoder.keyDecodingStrategy = .convertFromSnakeCase
         return try decoder.decode(T.self, from: data)
     } catch {
         fatalError("Couldn't parse \(file) as \(T.self):\n\(error)")

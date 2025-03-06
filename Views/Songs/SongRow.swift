@@ -93,9 +93,9 @@ struct SongRow: View {
     
     private var bpmString : String {
         if !song.per_chart {
-            return song.charts[0].bpmRange
+            return song.charts[0].bpm_range
         } else {
-            let minMax = song.charts.map{ getMinMaxBPM( $0.bpmRange ) }
+            let minMax = song.charts.map{ getMinMaxBPM( $0.bpm_range ) }
             let min = minMax.map{$0[0]}.min()!
             let max = minMax.map{$0.reversed()[0]}.max()!
             return min == max ? "\(min)" : "\(min)~\(max)"

@@ -355,7 +355,7 @@ struct DifficultyLevels: Hashable, Codable{
 }
 
 struct Chart: Hashable, Codable{
-    var bpmRange: String
+    var bpm_range: String
     var dominant_bpm: Int
     var true_min: Int
     var true_max: Int
@@ -370,7 +370,7 @@ struct Chart: Hashable, Codable{
     struct STOP: Hashable, Codable{
         var st: Float
         var dur: Float
-        var beats: StopBeats
+        var beats: [StopBeats]
         
         struct StopBeats: Hashable, Codable{
             var bpm: Int

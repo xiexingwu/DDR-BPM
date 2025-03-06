@@ -18,9 +18,9 @@ struct CourseDetail: View {
         let bpms = course.songs.map { courseSong -> [Int] in
             if let diff = courseSong.difficulty {
                 let chartIndex = getChartIndexFromDifficulty(courseSong.song!, diff)
-                return getMinMaxBPM(courseSong.song!.charts[chartIndex].bpmRange)
+                return getMinMaxBPM(courseSong.song!.charts[chartIndex].bpm_range)
             }else{
-                return getMinMaxBPM(courseSong.song!.charts[0].bpmRange)
+                return getMinMaxBPM(courseSong.song!.charts[0].bpm_range)
             }
         }
         let minBPM = bpms.map {$0.first!} .min()!
