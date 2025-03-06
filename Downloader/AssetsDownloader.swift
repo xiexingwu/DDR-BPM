@@ -9,8 +9,6 @@ import Foundation
 import Zip
 import SwiftUI
 
-private let GITHUB_TOKEN = "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"
-
 private let GITHUB_RAW = "https://raw.githubusercontent.com/xiexingwu/DDR-BPM-assets/main/"
 private func GITHUB_RAW_SONG (_ songName : String) -> String { GITHUB_RAW + "data/" + songName + ".json" }
 private func GITHUB_RAW_JACKET (_ songName : String) -> String { GITHUB_RAW + "jackets-lowres/" + songName + "-jacket.png" }
