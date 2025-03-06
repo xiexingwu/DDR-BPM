@@ -15,7 +15,7 @@ extension UIScreen{
 }
 
 func songToBPMPoints(_ song: Song, chartIndex : Int = 0) -> [CGPoint] {
-    let chart = song.chart[chartIndex]
+    let chart = song.charts[chartIndex]
     var points : [CGPoint] = []
     
     for bpm in chart.bpms {

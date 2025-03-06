@@ -37,7 +37,7 @@ enum DifficultyType: String, Comparable, Equatable, CaseIterable, Codable{
 func getSongDifficulties(_ song: Song, sd: SDType = .single) -> [Difficulty]{
     var arr : [Difficulty] = []
     
-    if let levels = sd == .single ? song.levels.single : song.levels.double{
+    if let levels = sd == .single ? song.sp : song.dp{
         if let level = levels.beginner {
             arr.append(Difficulty(difficulty:.beginner, level:level))
         }
@@ -84,7 +84,7 @@ struct Difficulty: Hashable, Identifiable {
     
     static func fromSongSD(_ song: Song, sd: SDType) -> [Difficulty] {
         var arr : [Difficulty] = []
-        if let difficultyLevels = sd == .single ? song.levels.single : song.levels.double {
+        if let difficultyLevels = sd == .single ? song.sp : song.dp {
             if let l = difficultyLevels.beginner  {
                 arr.append(Difficulty(
                     difficulty: .beginner,

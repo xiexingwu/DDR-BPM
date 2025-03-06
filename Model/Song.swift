@@ -139,7 +139,7 @@ private func cleanTitleSearch(_ txt : String) -> String{
 
 
 func getChartIndexFromUser(_ song: Song, _ viewModel: ViewModel) -> Int {
-    if !song.perChart {
+    if !song.per_chart {
         return 0
     }
 
@@ -157,7 +157,7 @@ func getChartIndexFromUser(_ song: Song, _ viewModel: ViewModel) -> Int {
     }
 }
 func getChartIndexFromDifficulty(_ song: Song, _ difficulty: DifficultyType, _ sd: SDType = .single) -> Int {
-    if !song.perChart {
+    if !song.per_chart {
         return 0
     }
     
@@ -167,11 +167,11 @@ func getChartIndexFromDifficulty(_ song: Song, _ difficulty: DifficultyType, _ s
 }
 
 func getChartIndicesBetweenLevel(_ song: Song, min: Int=1, max: Int=19, sd: SDType = .single) -> [Int] {
-    if !song.perChart {
+    if !song.per_chart {
         return songHasLevelBetween(song, min: min, max: max, sd: sd) ? [0] : []
     }
     
-    let levelsSingle = song.levels.single?.toArray() ?? []
+    let levelsSingle = song.sp?.toArray() ?? []
     
     var out : [Int] = []
 
@@ -184,7 +184,7 @@ func getChartIndicesBetweenLevel(_ song: Song, min: Int=1, max: Int=19, sd: SDTy
             }
         }
     case .double:
-        let levelsDouble = song.levels.double?.toArray() ?? []
+        let levelsDouble = song.dp?.toArray() ?? []
         let inLevelRange = levelsDouble.map{ $0 >= min && $0 <= max }
         for i in 0 ..< inLevelRange.count {
             if inLevelRange[i] {
@@ -227,28 +227,28 @@ func getMinMaxBPM(_ bpmRange: String) -> [Int]{
 }
 
 func songHasLevel(_ song: Song, level: Int, sd: SDType = .single) -> Bool {
-    if let levels = sd == .single ? song.levels.single : song.levels.double{
+    if let levels = sd == .single ? song.sp : song.dp{
         return levels.beginner ?? 0 == level || levels.easy ?? 0  == level || levels.medium ?? 0  == level || levels.hard ?? 0  == level || levels.challenge ?? 0  == level
     }else{
         return false
     }
 }
 func songHasLevelGT(_ song: Song, level: Int=1, sd: SDType = .single) -> Bool {
-    if let levels = sd == .single ? song.levels.single : song.levels.double{
+    if let levels = sd == .single ? song.sp : song.dp{
         return levels.beginner ?? 0 >= level || levels.easy ?? 0  >= level || levels.medium ?? 0  >= level || levels.hard ?? 0  >= level || levels.challenge ?? 0  >= level
     }else{
         return false
     }
 }
 func songHasLevelLT(_ song: Song, level: Int=19, sd: SDType = .single) -> Bool {
-    if let levels = sd == .single ? song.levels.single : song.levels.double{
+    if let levels = sd == .single ? song.sp : song.dp{
         return levels.beginner ?? 20 <= level || levels.easy ?? 20  <= level || levels.medium ?? 20  <= level || levels.hard ?? 20  <= level || levels.challenge ?? 20  <= level
     }else{
         return false
     }
 }
 func songHasLevelBetween(_ song: Song, min: Int=1, max: Int=19, sd: SDType = .single) -> Bool {
-    if let levels = sd == .single ? song.levels.single : song.levels.double{
+    if let levels = sd == .single ? song.sp : song.dp{
         return levels.beginner  ?? 0 >= min && levels.beginner  ?? 20 <= max
         || levels.easy      ?? 0 >= min && levels.easy      ?? 20 <= max
         || levels.medium    ?? 0 >= min && levels.medium    ?? 20 <= max
@@ -261,14 +261,14 @@ func songHasLevelBetween(_ song: Song, min: Int=1, max: Int=19, sd: SDType = .si
 
 func songHasBPM(_ song: Song, bpmRange: BPMRange = .any, allowMultiple: Bool = false, minLevel: Int=1, maxLevel: Int=19, sd: SDType = .single) -> Bool {
     if bpmRange == .any { return true }
-    if !song.perChart{
-        let bpm = song.chart[0].dominantBpm
+    if !song.per_chart{
+        let bpm = song.charts[0].dominant_bpm
         return BPMRange.isInBPMRange(bpm: bpm, bpmRange: bpmRange, allowMultiple: allowMultiple)
     }
     else {
         let chartIndices = getChartIndicesBetweenLevel(song, min: minLevel, max: maxLevel, sd: sd)
-        let charts = chartIndices.map{ song.chart[$0] }
-        let bpms = charts.map{ $0.dominantBpm }
+        let charts = chartIndices.map{ song.charts[$0] }
+        let bpms = charts.map{ $0.dominant_bpm }
         let hasBPM = bpms.map{ BPMRange.isInBPMRange(bpm: $0, bpmRange: bpmRange, allowMultiple: allowMultiple) }
         return hasBPM.contains(true)
     }
@@ -299,16 +299,17 @@ struct SongGroup: Identifiable, Equatable {
 
 struct Song: Hashable, Codable, Identifiable {
 
+    var ssc: Bool
+    var version: String
     var name: String
     var title: String
     var titletranslit: String
-    var version: String
-    var songLength: Float
-    var perChart: Bool
-    var ssc: Bool
+    var song_length: Float
+    var per_chart: Bool
     
-    var levels: Levels
-    var chart: [Chart]
+    var sp: DifficultyLevels?
+    var dp: DifficultyLevels?
+    var charts: [Chart]
     
     
     /* Derived & constant fields */
@@ -335,34 +336,29 @@ struct Song: Hashable, Codable, Identifiable {
 /* Nested types */
 
 
-struct Levels: Hashable, Codable{
-    var single: DifficultyLevels?
-    var double: DifficultyLevels?
+struct DifficultyLevels: Hashable, Codable{
+    var beginner: Int?
+    var easy: Int?
+    var medium: Int?
+    var hard: Int?
+    var challenge: Int?
     
-    struct DifficultyLevels: Hashable, Codable{
-        var beginner: Int?
-        var easy: Int?
-        var medium: Int?
-        var hard: Int?
-        var challenge: Int?
-        
-        func toArray() -> [Int] {
-            var out : [Int] = []
-            if let level = self.beginner { out.append(level) }
-            if let level = self.easy { out.append(level) }
-            if let level = self.medium { out.append(level) }
-            if let level = self.hard { out.append(level) }
-            if let level = self.challenge { out.append(level) }
-            return out
-        }
+    func toArray() -> [Int] {
+        var out : [Int] = []
+        if let level = self.beginner { out.append(level) }
+        if let level = self.easy { out.append(level) }
+        if let level = self.medium { out.append(level) }
+        if let level = self.hard { out.append(level) }
+        if let level = self.challenge { out.append(level) }
+        return out
     }
 }
 
 struct Chart: Hashable, Codable{
     var bpmRange: String
-    var dominantBpm: Int
-    var trueMin: Int
-    var trueMax: Int
+    var dominant_bpm: Int
+    var true_min: Int
+    var true_max: Int
     var bpms: [BPM]
     var stops: [STOP]
     
@@ -374,6 +370,11 @@ struct Chart: Hashable, Codable{
     struct STOP: Hashable, Codable{
         var st: Float
         var dur: Float
-        var beats: Float
+        var beats: StopBeats
+        
+        struct StopBeats: Hashable, Codable{
+            var bpm: Int
+            var val: Float
+        }
     }
 }

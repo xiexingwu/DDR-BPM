@@ -29,7 +29,7 @@ struct SongDetail: View {
     }
     
     private var chart: Chart {
-        song.chart[chartIndex]
+        song.charts[chartIndex]
     }
 
     private var uniqueBPMs : [Int] {
@@ -81,7 +81,7 @@ struct SongDetail: View {
     private var DifficultySelector: some View {
         VStack{
             
-            if song.perChart{
+            if song.per_chart{
                 let selectedDiff = Binding(
                     get: {difficulty ?? viewModel.userDiff},
                     set: {viewModel.userDiff = $0}
@@ -107,18 +107,18 @@ struct SongDetail: View {
         var bpmStr = chart.bpmRange
         if hasVariableBPM(chart){
             let bpms = getMinMaxBPM(bpmStr)
-            if chart.trueMin < bpms[0]{
-                bpmStr = "(\(chart.trueMin)~)" + bpmStr
+            if chart.true_min < bpms[0]{
+                bpmStr = "(\(chart.true_min)~)" + bpmStr
             }
-            if chart.trueMax > bpms[bpms.count > 1 ? 1 : 0] {
-                bpmStr = bpmStr + "(~\(chart.trueMax))"
+            if chart.true_max > bpms[bpms.count > 1 ? 1 : 0] {
+                bpmStr = bpmStr + "(~\(chart.true_max))"
             }
         }
             
         return VStack{
             Text("BPM: \(bpmStr)")
             if hasVariableBPM(chart){
-                Text("Mostly: \(chart.dominantBpm)")
+                Text("Mostly: \(chart.dominant_bpm)")
             }
         }
     }
@@ -144,7 +144,7 @@ struct SongDetail: View {
                     .frame(maxWidth: .infinity)
                 Text("Duration (s)")
                     .frame(maxWidth: .infinity)
-                Text("Beats @\(chart.dominantBpm)")
+                Text("Beats @\(chart.dominant_bpm)")
                     .frame(maxWidth: .infinity)
             }
             
@@ -176,7 +176,7 @@ struct SongDetail: View {
                 VStack{
                     BPMText
                     
-                    BPMwheel(bpmRange : song.chart[chartIndex].bpmRange, dominantBPM: song.chart[chartIndex].dominantBpm)
+                    BPMwheel(bpmRange : song.charts[chartIndex].bpmRange, dominantBPM: song.charts[chartIndex].dominant_bpm)
                 }.padding([.top, .bottom], 50)
 
                 if chart.bpms.count > 1 {

@@ -23,7 +23,7 @@ struct DifficultiesText: View{
     var difficulty: DifficultyType?
     
     var body: some View {
-        if let levels = viewModel.userSD == .single ? song.levels.single : song.levels.double {
+        if let levels = viewModel.userSD == .single ? song.sp : song.dp {
             if let difficulty = difficulty {
                 switch difficulty {
                 case .beginner:
@@ -92,10 +92,10 @@ struct SongRow: View {
     }
     
     private var bpmString : String {
-        if !song.perChart {
-            return song.chart[0].bpmRange
+        if !song.per_chart {
+            return song.charts[0].bpmRange
         } else {
-            let minMax = song.chart.map{ getMinMaxBPM( $0.bpmRange ) }
+            let minMax = song.charts.map{ getMinMaxBPM( $0.bpmRange ) }
             let min = minMax.map{$0[0]}.min()!
             let max = minMax.map{$0.reversed()[0]}.max()!
             return min == max ? "\(min)" : "\(min)~\(max)"

@@ -121,7 +121,7 @@ struct RandomView: View {
     }
     
     private func randomDifficulty(_ song: Song) -> DifficultyType? {
-        let levels = viewModel.userSD == .single ? song.levels.single! : song.levels.double!
+        let levels = viewModel.userSD == .single ? song.sp! : song.dp!
         let min = viewModel.randomMinLevel
         let max = selectLevelRange ? viewModel.randomMaxLevel : viewModel.randomMinLevel
 

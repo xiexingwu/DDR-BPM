@@ -55,10 +55,10 @@ struct DifficultySelector: View {
     }
     var song: Song?
     
-    private var level : Levels.DifficultyLevels? {
-        var level : Levels.DifficultyLevels?
+    private var level : DifficultyLevels? {
+        var level : DifficultyLevels?
         if let song = song {
-            level = viewModel.userSD == .single ? song.levels.single : song.levels.double
+            level = viewModel.userSD == .single ? song.sp : song.dp
         }
         return level
     }
