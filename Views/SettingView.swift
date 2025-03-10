@@ -5,99 +5,102 @@
 //  Created by Michael Xie on 9/5/2022.
 //
 
-import SwiftUI
 import Introspect
+import SwiftUI
 
 enum FocusField: Hashable {
     case readSpeedField
 }
-enum ShowingConfirmation: Hashable{
+enum ShowingConfirmation: Hashable {
     case none
     case clearFavs
-    case clearCourses
     case deleteJackets
     case downloadAssets
     case checkUpdates
     case resetApp
 }
 
+enum UpdateStatus: String {
+    case none
+    case checking
+    case notavailable
+    case available
+    case progressing
+    case success
+    case fail
+}
+
 struct SettingView: View {
-    
+
     @State private var showingConfirmation: ShowingConfirmation = .none
-    @FocusState private var focusedField : FocusField?
-    
-    
+    @FocusState private var focusedField: FocusField?
+
     var body: some View {
-        NavigationView{
-            VStack{
-                List{
-                    Section{
-                        ReadSpeedInput(focusedField: _focusedField)
-                    }
-                    
-                    Section{
-                        UpdateButtons(showing: $showingConfirmation)
-//                        AssetsButton(showing: $showingConfirmation)
-                    }
-                    
-                    Section{
-                        ClearFavsButton(showing: $showingConfirmation)
-                        //                    ClearCoursesButton(showing: $showingConfirmation)
-                        
-                    }
-                    
-                    Section{
-                        ResetAppButton(showing: $showingConfirmation)
-                    }
-                    
-                    Section{
-                        Link(destination: URL(string: "https://github.com/xiexingwu/DDR-BPM-issues")!) {
+        NavigationView {
+            VStack {
+                List {
+                    Section { ReadSpeedInput(focusedField: _focusedField) }
+
+                    Section { UpdateButtons() }
+
+                    Section { ClearFavsButton(showing: $showingConfirmation) }
+
+                    Section { ResetAppButton(showing: $showingConfirmation) }
+
+                    Section {
+                        Link(
+                            destination: URL(string: "https://github.com/xiexingwu/DDR-BPM-issues")!
+                        ) {
                             Label("Report bug / Give feedback", systemImage: "ant")
                         }
-                        Link(destination: URL(string: "https://www.paypal.com/donate/?hosted_button_id=2R64RY6ZL52EW")!){
+                        Link(
+                            destination: URL(
+                                string:
+                                    "https://www.paypal.com/donate/?hosted_button_id=2R64RY6ZL52EW")!
+                        ) {
                             Label("Support me (PayPal)", systemImage: "dollarsign.circle")
                         }
                     }
                 }
-                .introspectTableView{ tableView in
+                .introspectTableView { tableView in
                     tableView.keyboardDismissMode = .onDrag
                 }
-                
+
             }
             .navigationTitle("Settings")
             .navigationBarTitleDisplayMode(.inline)
         }
-        
+
     }
 }
 
-
-struct ReadSpeedInput : View {
+struct ReadSpeedInput: View {
     @EnvironmentObject var viewModel: ViewModel
     @FocusState var focusedField: FocusField?
-    
-    @State private var tempReadSpeed : Int?
-    @State private var alertInvalidReadSpeed : Bool = false
-    @State private var alertValidReadSpeed : Bool = false
-    
+
+    @State private var tempReadSpeed: Int?
+    @State private var alertInvalidReadSpeed: Bool = false
+    @State private var alertValidReadSpeed: Bool = false
+
     private func validInput() -> Bool {
-        if tempReadSpeed != nil{
+        if tempReadSpeed != nil {
             return tempReadSpeed! > 0
         } else {
             return false
         }
     }
-    
+
     var body: some View {
         HStack {
             Text("Set read speed:")
                 .onTapGesture {
                     focusedField = .readSpeedField
                 }
-            
-            TextField(viewModel.userReadSpeed.formatted(),
-                      value: $tempReadSpeed,
-                      format: .number
+
+            TextField(
+                viewModel.userReadSpeed.formatted(),
+                value: $tempReadSpeed,
+                format: .number
             )
             .keyboardType(.numberPad)
             .focused($focusedField, equals: .readSpeedField)
@@ -107,13 +110,13 @@ struct ReadSpeedInput : View {
                     tempReadSpeed = nil
                 }
             }
-            .toolbar{
-                ToolbarItem(placement: .keyboard){
-                    ToolbarKeyboard(cancelAction: {focusedField = .none} )
+            .toolbar {
+                ToolbarItem(placement: .keyboard) {
+                    ToolbarKeyboard(cancelAction: { focusedField = .none })
                 }
             }
-            
-            Button{
+
+            Button {
                 if validInput() {
                     viewModel.userReadSpeed = tempReadSpeed!
                     focusedField = nil
@@ -126,270 +129,128 @@ struct ReadSpeedInput : View {
                     .foregroundColor(.blue)
             }
             .buttonStyle(.plain)
-            .alert("Invalid read speed.", isPresented: $alertInvalidReadSpeed){
+            .alert("Invalid read speed.", isPresented: $alertInvalidReadSpeed) {
                 Button("OK", role: .cancel) {
                     focusedField = .readSpeedField
                 }
             }
-            .alert("Read speed set to \(tempReadSpeed ?? 0).", isPresented: $alertValidReadSpeed){
-                Button("OK", role: .cancel) {tempReadSpeed = nil; }
+            .alert("Read speed set to \(tempReadSpeed ?? 0).", isPresented: $alertValidReadSpeed) {
+                Button("OK", role: .cancel) { tempReadSpeed = nil }
             }
         }
     }
-    
+
 }
 
-struct ClearFavsButton : View {
+struct ClearFavsButton: View {
     @EnvironmentObject var favorites: Favorites
     @Binding var showing: ShowingConfirmation
-    
+
     var body: some View {
-        let showingBool = Binding(get: {showing == .clearFavs}, set: {showing = $0 ? .clearFavs : .none})
-        Button(role: .destructive){
+        let showingBool = Binding(
+            get: { showing == .clearFavs }, set: { showing = $0 ? .clearFavs : .none })
+        Button(role: .destructive) {
             showing = .clearFavs
-        } label:{
+        } label: {
             Label("Clear favorites", systemImage: "trash")
         }
         .confirmationDialog(
             "Confirm clearing favorites?",
             isPresented: showingBool,
             titleVisibility: .visible
-        ){
-            Button("Yes", role: .destructive){
+        ) {
+            Button("Yes", role: .destructive) {
                 favorites.clear()
             }
         }
     }
 }
 
+struct UpdateButtons: View {
 
-struct ClearCoursesButton : View {
     @EnvironmentObject var modelData: ModelData
-    @Binding var showing: ShowingConfirmation
-    
-    var body: some View {
-        let showingBool = Binding(get: {showing == .clearCourses}, set: {showing = $0 ? .clearFavs : .none})
-        
-        Button(role: .destructive){
-            showing = .clearCourses
-        } label:{
-            Label("Reset courses", systemImage: "trash")
-        }
-        .confirmationDialog(
-            "Confirm resetting courses?",
-            isPresented: showingBool,
-            titleVisibility: .visible
-        ){
-            Button("Yes", role: .destructive){
-                modelData.resetCourses()
-            }
-        }
-    }
-}
-
-/* TODO: Chagne to AsyncButton like in CheckUpdatesButton */
-struct AssetsButton : View {
     @EnvironmentObject var viewModel: ViewModel
-    @Binding var showing: ShowingConfirmation
-    
+    // @Binding var showing: ShowingConfirmation
+    @State var updateStatus: UpdateStatus = .none
+
     private let downloader = AssetsDownloader.shared
 
     var body: some View {
-        
-        if viewModel.jacketsDownloaded{
-            DeleteJacketsButton
-        } else {
-            DownloadAssetsButton
-        }
+        CheckUpdatesButton
     }
-    
-    var DownloadAssetsButton : some View {
-        let showingBool = Binding(get: {showing == .downloadAssets}, set: {showing = $0 ? .downloadAssets : .none})
-        return Button{
-            showing = viewModel.downloadProgress < 0 ? .downloadAssets : .none
-        } label: {
-            HStack{
-                Label("Download CD jackets", systemImage: "square.and.arrow.down")
 
-                if viewModel.downloadProgress >= 0 && viewModel.downloadProgress < 1{
-                    Spacer()
-                    let str = viewModel.downloadProgressText + String(format:" (%.0f%%)", viewModel.downloadProgress * 100)
-                    Text(str)
-                        .font(.caption)
-                } else if viewModel.downloadProgress >= 1 {
-                    Spacer()
-                    Text("Processing")
-                }
-            }
-        }
-        .disabled(viewModel.updateStatus == .progressing || viewModel.assetsStatus == .progressing || viewModel.updateStatus == .checking || viewModel.assetsStatus == .checking)
-        .confirmationDialog(
-            "Download CD jackets (Approx \(ASSETS_SIZE)?",
-            isPresented: showingBool,
-            titleVisibility: .visible
-        ){
-            Button("Yes", role: .destructive){
-                downloader.downloadJacketsZip()
-            }
-        }
-    }
-    
-    var DeleteJacketsButton : some View {
-        let showingBool = Binding(get: {showing == .deleteJackets}, set: {showing = $0 ? .deleteJackets : .none})
-        return Button(role: .destructive){
-            showing = .deleteJackets
-        } label: {
-            Label("Delete CD Jackets", systemImage: "trash")
-        }
-        .confirmationDialog(
-            "Confirm clearing downloads (CD jackets)?",
-            isPresented: showingBool,
-            titleVisibility: .visible
-        ){
-            Button("Yes", role: .destructive){
-                do {
-                    // Delete legacy jacket folder
-                    try? FileManager.default.removeItem(at: DOCUMENTS_URL.appendingPathComponent("jackets"))
-                    try FileManager.default.removeItem(at: JACKETS_FOLDER_URL)
-
-                    viewModel.jacketsDownloaded = false
-                } catch {
-                    defaultLogger.error("failed to delete jackets.")
-                }
-            }
-        }
-    }
-}
-
-
-struct UpdateButtons : View {
-    @EnvironmentObject var modelData: ModelData
-    @EnvironmentObject var viewModel: ViewModel
-    @Binding var showing: ShowingConfirmation
-    
-    private let downloader = AssetsDownloader.shared
-
-    var body: some View {
-        Group {
-            CheckUpdatesButton
-            VerifyFilesButton
-        }
-    }
-    
-    var CheckUpdatesButton : some View {
+    var CheckUpdatesButton: some View {
         let systemImage: String = "arrow.triangle.2.circlepath"
         let labelText: String = {
-            switch viewModel.updateStatus{
+            switch updateStatus {
+            case .none:
+                return "Check for update."
             case .checking:
-                return "Checking for updates..."
+                return "Checking for update..."
+            case .notavailable:
+                return "No update available. Check again?"
             case .available:
-                return "Updates available"
+                return "Update available"
             case .progressing:
                 return "Updating..."
             case .success:
-                return "Up to date"
+                return "Update finished. Check again?"
             case .fail:
-                return "Update failed (Try again)"
-            default:
-                return "Check updates"
+                return "Update failed. Restart?"
             }
         }()
-        
-        return AsyncButton() {
-            switch viewModel.updateStatus {
+
+        return AsyncButton {
+            switch updateStatus {
+            case .none, .notavailable, .success, .fail:
+                updateStatus = .checking;
+                updateStatus = await downloader.checkUpdate()
             case .available:
-                await downloader.updateAssets()
+                updateStatus = .progressing;
+                updateStatus = await downloader.updateAssets()
+                modelData.loadSongs()
             case .checking, .progressing:
                 ()
-            case .fail:
-                await downloader.checkUpdates()
-                await downloader.updateAssets()
-            default:
-                await downloader.checkUpdates()
             }
         } label: {
-            HStack{
-                Label(labelText, systemImage: systemImage)
-                Text(viewModel.updateProgressText)
-                    .font(.caption)
-            }
+            Label(labelText, systemImage: systemImage)
         }
-        .disabled(viewModel.updateStatus == .progressing || viewModel.assetsStatus == .progressing || viewModel.updateStatus == .checking || viewModel.assetsStatus == .checking)
-    }
-    
-    
-    var VerifyFilesButton: some View {
-        let systemImage: String = "wrench.and.screwdriver"
-        let labelText: String = {
-            switch viewModel.assetsStatus{
-            case .checking:
-                return "Checking for broken files..."
-            case .available:
-                return "Fix missing/broken files"
-            case .progressing:
-                return "Fixing..."
-            case .success:
-                return "Files OK"
-            case .fail:
-                return "Files still broken (Try again)"
-            default:
-                return "Check for broken files"
-            }
-        }()
-        
-        return AsyncButton() {
-            switch viewModel.assetsStatus {
-            case .available:
-                await downloader.updateAssets(fix: true)
-            case .checking, .progressing:
-                ()
-            case .fail:
-                await downloader.checkUpdates(fix: true)
-                await downloader.updateAssets(fix: true)
-            default:
-                await downloader.checkUpdates(fix: true)
-            }
-        } label: {
-            HStack{
-                Label(labelText, systemImage: systemImage)
-                Spacer()
-                Text(viewModel.assetsProgressText)
-                    .font(.caption)
-            }
-        }
-        .disabled(viewModel.updateStatus == .progressing || viewModel.assetsStatus == .progressing || viewModel.updateStatus == .checking || viewModel.assetsStatus == .checking)
+        .disabled(
+            [.checking, .progressing].contains(updateStatus)
+        )
     }
 
 }
 
-struct ResetAppButton : View {
+struct ResetAppButton: View {
     @EnvironmentObject var viewModel: ViewModel
     @EnvironmentObject var modelData: ModelData
     @EnvironmentObject var favorites: Favorites
     @Binding var showing: ShowingConfirmation
-    
+
     @State private var showingPostReset: Bool = false
-    
+
     var body: some View {
-        let showingBool = Binding(get: {showing == .resetApp}, set: {showing = $0 ? .resetApp : .none})
-        Button(role: .destructive){
+        let showingBool = Binding(
+            get: { showing == .resetApp }, set: { showing = $0 ? .resetApp : .none })
+        Button(role: .destructive) {
             showing = .resetApp
-        } label:{
+        } label: {
             Label("Reset app", systemImage: "trash")
         }
         .confirmationDialog(
             "This will reset all app settings and delete all data.\nProceed?",
             isPresented: showingBool,
             titleVisibility: .visible
-        ){
-            Button("Yes", role: .destructive){
+        ) {
+            Button("Yes", role: .destructive) {
                 modelData.reset()
                 viewModel.reset()
                 favorites.clear()
                 showingPostReset = true
             }
         }
-        .alert("Please close and restart the app.", isPresented: $showingPostReset){
+        .alert("Please close and restart the app.", isPresented: $showingPostReset) {
             Button("OK", role: .cancel) {
                 ()
             }

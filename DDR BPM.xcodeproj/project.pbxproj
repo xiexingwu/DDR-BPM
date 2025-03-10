@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		3208BA4A283CA56500953773 /* GroupedCoursesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3208BA49283CA56500953773 /* GroupedCoursesView.swift */; };
-		321ECC5B286741CC00EA69B4 /* Zip in Frameworks */ = {isa = PBXBuildFile; productRef = 321ECC5A286741CC00EA69B4 /* Zip */; };
 		321ECC5F286984B100EA69B4 /* AsyncButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 321ECC5E286984B100EA69B4 /* AsyncButton.swift */; };
 		321ECC642873283900EA69B4 /* DownloaderUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = 321ECC632873283900EA69B4 /* DownloaderUtil.swift */; };
 		32230725283CADDB0009DBF1 /* CourseDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32230724283CADDB0009DBF1 /* CourseDetail.swift */; };
@@ -35,6 +34,7 @@
 		3277AD782878B76700EFD47C /* Introspect in Frameworks */ = {isa = PBXBuildFile; productRef = 3277AD772878B76700EFD47C /* Introspect */; };
 		32971DE9285B872300FD438E /* AssetsDownloader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32971DE8285B872300FD438E /* AssetsDownloader.swift */; };
 		32972D902867371700FD438E /* AppResources in Resources */ = {isa = PBXBuildFile; fileRef = 32972D8F2867371700FD438E /* AppResources */; };
+		329EEE082D7B4B5400565B48 /* ZIPFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = 329EEE072D7B4B5400565B48 /* ZIPFoundation */; };
 		32B14F8D2821588200E4AC86 /* FavoriteButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32B14F8C2821588200E4AC86 /* FavoriteButton.swift */; };
 		32B14F8F282158B600E4AC86 /* SongList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32B14F8E282158B600E4AC86 /* SongList.swift */; };
 		32B14F9128215A6800E4AC86 /* SongDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32B14F9028215A6800E4AC86 /* SongDetail.swift */; };
@@ -112,8 +112,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				321ECC5B286741CC00EA69B4 /* Zip in Frameworks */,
 				3277AD782878B76700EFD47C /* Introspect in Frameworks */,
+				329EEE082D7B4B5400565B48 /* ZIPFoundation in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -166,6 +166,7 @@
 				3269E9E12820F8ED002C96CB /* DDR_BPMApp.swift */,
 				32972D8F2867371700FD438E /* AppResources */,
 				3269E9E72820F8EE002C96CB /* Preview Content */,
+				329EEE062D7B4B5400565B48 /* Frameworks */,
 				3269E9DF2820F8ED002C96CB /* Products */,
 			);
 			sourceTree = "<group>";
@@ -240,6 +241,13 @@
 			path = AlwaysPopOver;
 			sourceTree = "<group>";
 		};
+		329EEE062D7B4B5400565B48 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		32B14F8B2821587400E4AC86 /* Util */ = {
 			isa = PBXGroup;
 			children = (
@@ -285,8 +293,8 @@
 			);
 			name = "DDR BPM";
 			packageProductDependencies = (
-				321ECC5A286741CC00EA69B4 /* Zip */,
 				3277AD772878B76700EFD47C /* Introspect */,
+				329EEE072D7B4B5400565B48 /* ZIPFoundation */,
 			);
 			productName = "DDR BPM";
 			productReference = 3269E9DE2820F8ED002C96CB /* DDR BPM.app */;
@@ -362,8 +370,8 @@
 			mainGroup = 3269E9D52820F8ED002C96CB;
 			packageReferences = (
 				32971DEA285C227800FD438E /* XCRemoteSwiftPackageReference "Zip" */,
-				321ECC59286741CC00EA69B4 /* XCRemoteSwiftPackageReference "Zip" */,
 				3277AD762878B76700EFD47C /* XCRemoteSwiftPackageReference "SwiftUI-Introspect" */,
+				329EEE052D7B4B0400565B48 /* XCRemoteSwiftPackageReference "ZIPFoundation" */,
 			);
 			productRefGroup = 3269E9DF2820F8ED002C96CB /* Products */;
 			projectDirPath = "";
@@ -770,14 +778,6 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		321ECC59286741CC00EA69B4 /* XCRemoteSwiftPackageReference "Zip" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/marmelroy/Zip";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 2.1.0;
-			};
-		};
 		3277AD762878B76700EFD47C /* XCRemoteSwiftPackageReference "SwiftUI-Introspect" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/siteline/SwiftUI-Introspect.git";
@@ -794,18 +794,26 @@
 				minimumVersion = 2.1.0;
 			};
 		};
+		329EEE052D7B4B0400565B48 /* XCRemoteSwiftPackageReference "ZIPFoundation" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/weichsel/ZIPFoundation.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.9.19;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		321ECC5A286741CC00EA69B4 /* Zip */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 321ECC59286741CC00EA69B4 /* XCRemoteSwiftPackageReference "Zip" */;
-			productName = Zip;
-		};
 		3277AD772878B76700EFD47C /* Introspect */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 3277AD762878B76700EFD47C /* XCRemoteSwiftPackageReference "SwiftUI-Introspect" */;
 			productName = Introspect;
+		};
+		329EEE072D7B4B5400565B48 /* ZIPFoundation */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 329EEE052D7B4B0400565B48 /* XCRemoteSwiftPackageReference "ZIPFoundation" */;
+			productName = ZIPFoundation;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

@@ -56,10 +56,6 @@ class ViewModel : ObservableObject{
     @Published var downloadStatus : DownloadStatus = .none
     
     /* Updates and assets validation */
-    @Published var updateStatus: UpdateStatus = .none
-    @Published var updateProgressText : String = ""
-    @Published var assetsStatus: UpdateStatus = .none
-    @Published var assetsProgressText : String = ""
     @AppStorage("lastUpdateDate") var lastUpdateDate: Int = Int(Date(timeIntervalSinceNow: -Date.week ))
 
 }
@@ -91,13 +87,4 @@ enum DownloadStatus: String {
     case none
     case fail
     case success
-}
-
-enum UpdateStatus: String {
-    case none
-    case checking
-    case available
-    case progressing
-    case success
-    case fail
 }

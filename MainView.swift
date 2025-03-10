@@ -67,10 +67,6 @@ struct MainView: View {
             Task{
                 let lastUpdateDate = Date(viewModel.lastUpdateDate).timeIntervalSinceNow
                 defaultLogger.debug("seconds since last update: \(lastUpdateDate)")
-                if modelData.initialLoad != .done || (viewModel.updateStatus == .none && -lastUpdateDate >= Date.week) {
-                    defaultLogger.debug("Checking for updates on launch...")
-                    await downloader.checkUpdates()
-                }
             }
         }
     }

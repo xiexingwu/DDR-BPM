@@ -26,11 +26,8 @@ let JACKETS_FOLDER_URL: URL = APPDATA_FOLDER_URL.appendingPathComponent("jackets
 let COURSES_FILE_URL: URL = APPDATA_FOLDER_URL.appendingPathComponent("courses.json")
 let USER_COURSES_FILE_URL: URL = APPDATA_FOLDER_URL.appendingPathComponent("user_courses.json")
 
-func SONG_FILE_URL(_ songName: String) -> URL {
-    SONGS_FOLDER_URL.appendingPathComponent("\(songName).json")
-}
 func JACKET_FILE_URL(_ songName: String) -> URL {
-    JACKETS_FOLDER_URL.appendingPathComponent("\(songName)-jacket.png")
+    JACKETS_FOLDER_URL.appendingPathComponent("\(songName).png")
 }
 
 @main
