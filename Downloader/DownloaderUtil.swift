@@ -5,8 +5,8 @@
 //  Created by Michael Xie on 4/7/2022.
 //
 
-import Foundation
 import CryptoKit
+import Foundation
 
 typealias HashDigest = Insecure.SHA1Digest
 
@@ -24,34 +24,37 @@ func responseSucceeded(_ response: URLResponse) -> Bool {
     }
 }
 
-private func getMagnitude(_ val: Int64) -> Int {
+private func getExponent(_ val: Int64) -> Int {
     // magnitude 1000^?: 1 -> KiB, 2-> MiB, 3-> GiB ...
-    return Int(log(Float(val)) / log(1024))
+    if val <= 0 { return 0 }
+    return Int(log(Float(val)) / log(1000))
 }
 
-private func getBytesUnit(_ mult: Int) -> String {
-    switch mult{
+private func getBytesUnit(_ exponent: Int) -> String {
+    switch exponent {
     case 0:
         return "B"
     case 1:
-        return "KB"
+        return "kB"
     case 2:
         return "MB"
     case 3:
         return "GB"
     default:
-        return "?B"
+        return ""
     }
 }
 
-func formatBytes(_ bytes: Int64) -> String{
-    let mult = getMagnitude(bytes)
-    let base = Int(pow(Float(1024), Float(mult)))
-    let sig = Float(bytes)/Float(base)
-    let sigStr = sig >= 10 ? String(format:"%.1f", sig) : String(format: "%.0f", sig)
-    return sigStr + getBytesUnit(mult)
+func formatBytes(_ bytes: Int64) -> String {
+    /// Output: 0 B, 4.2 kB, 11 MB, etc.
+    /// Math:   <bytes> = <num> x <base>
+    ///         <base> = 1000^<exponent>
+    let exponent = getExponent(bytes)
+    let base = Int(pow(Float(1000), Float(exponent)))
+    let num = Float(bytes) / Float(base)
+    let numStr = num >= 10 ? String(format: "%.1f", num) : String(format: "%.0f", num)
+    return numStr + " " + getBytesUnit(exponent)
 }
-
 
 func readLines(contentsOf url: URL) throws -> [String] {
 
@@ -70,23 +73,23 @@ func readLines(contentsOf url: URL) throws -> [String] {
 
 func hashFile(_ file: URL) throws -> HashDigest {
     let data: Data
-    
+
     do {
         data = try Data(contentsOf: file)
     } catch {
         defaultLogger.error("Couldn't read \(file) for hashing")
         throw FileError.readFailed
     }
-    
+
     return Insecure.SHA1.hash(data: data)
 }
 
 func getFileHash(_ file: URL) throws -> HashDigest {
-    if !FileManager.default.fileExists(atPath: file.path){
+    if !FileManager.default.fileExists(atPath: file.path) {
         defaultLogger.error("Failed to find file for hashing: \(file.path)")
         throw FileError.fileNotFound
     }
-    
+
     let hash = try hashFile(file)
     return hash
 }
