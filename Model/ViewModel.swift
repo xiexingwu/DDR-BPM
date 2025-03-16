@@ -50,14 +50,11 @@ class ViewModel : ObservableObject{
     @AppStorage("userShowLIFE4Courses") var userShowLIFE4Courses : Bool = true
     @AppStorage("userShowCustomCourses") var userShowCustomCourses : Bool = true
 
-    @AppStorage("jacketsDownloaded") var jacketsDownloaded : Bool = true
-    @Published var downloadProgress : Double = -1
-    @Published var downloadProgressText : String = ""
-    @Published var downloadStatus : DownloadStatus = .none
-    
     /* Updates and assets validation */
-    @AppStorage("lastUpdateDate") var lastUpdateDate: Int = Int(Date(timeIntervalSinceNow: -Date.week ))
-
+    @Published var updateStatus: UpdateStatus = .none
+    @AppStorage("lastUpdateDate") var lastUpdateDate: Int = Int(
+        Date(timeIntervalSinceNow: -Date.week))
+    @Published var downloadProgressBytes: (Int64, Int64) = (0, 0)
 }
 
 extension ViewModel {
@@ -71,20 +68,12 @@ extension ViewModel {
         filterMaxLevel = 19
         randomMinLevel = 1
         randomMaxLevel = 19
-        
+
         userCourseSort = .version
         userShowDDRCourses = true
         userShowLIFE4Courses = true
         userShowCustomCourses = true
-        
-        jacketsDownloaded = true
-        
+
         lastUpdateDate = Int(Date())
     }
-}
-
-enum DownloadStatus: String {
-    case none
-    case fail
-    case success
 }
