@@ -20,8 +20,6 @@ struct MainView: View {
     @EnvironmentObject var viewModel: ViewModel
     @EnvironmentObject var modelData: ModelData
 
-    let downloader = AssetsDownloader.shared
-
     var body: some View {
         
         let showingInitialLoadAlert = Binding(
@@ -62,8 +60,6 @@ struct MainView: View {
             }
         }
         .onAppear{
-            downloader.linkModelData(modelData)
-            downloader.linkViewModel(viewModel)
             Task{
                 let lastUpdateDate = Date(viewModel.lastUpdateDate).timeIntervalSinceNow
                 defaultLogger.debug("seconds since last update: \(lastUpdateDate)")
