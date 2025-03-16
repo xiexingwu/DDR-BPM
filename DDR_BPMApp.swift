@@ -30,6 +30,12 @@ func JACKET_FILE_URL(_ songName: String) -> URL {
     JACKETS_FOLDER_URL.appendingPathComponent("\(songName).png")
 }
 
+let STORE = "https://ddrbpm.com/"
+let ALL_SONGS_FILE = "all_songs.txt"
+let COURSES_FILE = "courses.json"
+let DATA_ZIP = "data.zip"
+let JACKETS_ZIP = "jackets.zip"
+
 @main
 struct DDR_BPMApp: App {
     let favorites = Favorites()
