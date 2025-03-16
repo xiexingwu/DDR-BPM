@@ -319,11 +319,6 @@ struct Song: Hashable, Codable, Identifiable {
             return Image(uiImage: image)
         }
 
-        // Legacy jacket folder
-        if let image = UIImage(contentsOfFile: DOCUMENTS_URL.appendingPathComponent("jackets/\(name)-jacket.png").path) {
-            return Image(uiImage: image)
-        }
-        
         return nil
     }
     
