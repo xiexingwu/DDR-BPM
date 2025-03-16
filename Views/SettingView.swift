@@ -170,10 +170,8 @@ struct UpdateButtons: View {
 
     @EnvironmentObject var modelData: ModelData
     @EnvironmentObject var viewModel: ViewModel
-    // @Binding var showing: ShowingConfirmation
-    @State var updateStatus: UpdateStatus = .none
 
-    private let downloader = AssetsDownloader.shared
+    private let downloader = BackgroundDownloader.shared
 
     var body: some View {
         CheckUpdatesButton
@@ -182,7 +180,7 @@ struct UpdateButtons: View {
     var CheckUpdatesButton: some View {
         let systemImage: String = "arrow.triangle.2.circlepath"
         let labelText: String = {
-            switch updateStatus {
+            switch viewModel.updateStatus {
             case .none:
                 return "Check for update."
             case .checking:
@@ -192,7 +190,8 @@ struct UpdateButtons: View {
             case .available:
                 return "Update available"
             case .progressing:
-                return "Updating..."
+                return
+                    "Updating... \(formatBytes(viewModel.downloadProgressBytes.0))/\(formatBytes(viewModel.downloadProgressBytes.1))"
             case .success:
                 return "Update finished. Check again?"
             case .fail:
@@ -201,14 +200,16 @@ struct UpdateButtons: View {
         }()
 
         return AsyncButton {
-            switch updateStatus {
+            switch viewModel.updateStatus {
             case .none, .notavailable, .success, .fail:
-                updateStatus = .checking;
-                updateStatus = await downloader.checkUpdate()
+                viewModel.updateStatus = .checking
+                viewModel.updateStatus = await checkUpdate()
             case .available:
-                updateStatus = .progressing;
-                updateStatus = await downloader.updateAssets()
-                modelData.loadSongs()
+                viewModel.updateStatus = .progressing
+                downloader.downloadAsset(
+                    etagStore: .data, viewModel: viewModel, modelData: modelData)
+                downloader.downloadAsset(
+                    etagStore: .jackets, viewModel: viewModel, modelData: modelData, isLast: true)
             case .checking, .progressing:
                 ()
             }
@@ -216,10 +217,32 @@ struct UpdateButtons: View {
             Label(labelText, systemImage: systemImage)
         }
         .disabled(
-            [.checking, .progressing].contains(updateStatus)
+            [.checking, .progressing].contains(viewModel.updateStatus)
         )
     }
 
+    private func checkUpdate() async -> UpdateStatus {
+        do {
+            var etag: String
+
+            etag = try await fetchEtag(STORE + DATA_ZIP)
+            let dataUpdated = (etag != modelData.dataEtag)
+            defaultLogger.debug("new data etag: \(etag)")
+            defaultLogger.debug("old data etag: \(modelData.dataEtag)")
+            defaultLogger.debug("Update needed: \(dataUpdated)")
+
+            etag = try await fetchEtag(STORE + JACKETS_ZIP)
+            let jacketsUpdated = (etag != modelData.jacketsEtag)
+            defaultLogger.debug("new jackets etag: \(etag)")
+            defaultLogger.debug("old jackets etag: \(modelData.jacketsEtag)")
+            defaultLogger.debug("Update needed: \(jacketsUpdated )")
+
+            return dataUpdated || jacketsUpdated ? .available : .notavailable
+        } catch {
+            defaultLogger.error("Failed to check update")
+            return .available
+        }
+    }
 }
 
 struct ResetAppButton: View {
