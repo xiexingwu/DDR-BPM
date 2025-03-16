@@ -18,7 +18,7 @@ enum InitialLoad: String {
 final class ModelData: ObservableObject {
 
     @AppStorage("dataEtag") var dataEtag: String = ""
-    @AppStorage("JacketsEtag") var jacketsEtag: String = ""
+    @AppStorage("jacketsEtag") var jacketsEtag: String = ""
     @AppStorage("initialLoad") var initialLoad: InitialLoad = .none
 
     var songs: [Song] = []
@@ -162,16 +162,8 @@ final class ModelData: ObservableObject {
 extension ModelData {
     func reset() {
         initialLoad = .none
-
-        do {
-            // Delete legacy jacket folder
-            try? FileManager.default.removeItem(at: DOCUMENTS_URL.appendingPathComponent("jackets"))
-            // Delete appdata folder
-            try FileManager.default.removeItem(at: APPDATA_FOLDER_URL)
-        } catch {
-            defaultLogger.error(
-                "Failed to delete \(APPDATA_FOLDER_URL.path) on resetting ModelData")
-        }
+        dataEtag = ""
+        jacketsEtag = ""
     }
 }
 
