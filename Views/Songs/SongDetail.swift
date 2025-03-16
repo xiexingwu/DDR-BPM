@@ -134,6 +134,29 @@ struct SongDetail: View {
         }
     }
     
+    private var BPMListSection: some View {
+        VStack{
+            
+            Divider()
+            
+            HStack{
+                Text("Start (s)")
+                    .frame(maxWidth: .infinity)
+                Text("BPM")
+                    .frame(maxWidth: .infinity)
+            }
+            
+            ForEach(chart.bpms, id:\.self){ bpm in
+                HStack{
+                    Text(String(format: "%.2f", bpm.st))
+                        .frame(maxWidth: .infinity)
+                    Text(String(format: "%d", bpm.val))
+                        .frame(maxWidth: .infinity)
+                }
+            }
+        }
+    }
+
     private var StopsSection: some View{
         VStack{
             
@@ -181,6 +204,7 @@ struct SongDetail: View {
 
                 if chart.bpms.count > 1 {
                     BPMPlotSection
+                    BPMListSection
                 }
 
                 if chart.stops.count > 0 {
