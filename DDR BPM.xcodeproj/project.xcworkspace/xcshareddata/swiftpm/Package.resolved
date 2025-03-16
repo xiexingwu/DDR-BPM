@@ -1,5 +1,5 @@
 {
-  "originHash" : "bc95a2b388ab6a6869f80feaccdb6453d978454cd6bac1904201bbd5f0203cd1",
+  "originHash" : "660d6601bd3849cea6ef996f247ba004b2095362f48e7f5253b20d598abf0f66",
   "pins" : [
     {
       "identity" : "swiftui-introspect",
@@ -8,15 +8,6 @@
       "state" : {
         "branch" : "master",
         "revision" : "7ef0df639079491ee1aaf6b83b6fd4d08df80393"
-      }
-    },
-    {
-      "identity" : "zip",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/marmelroy/Zip",
-      "state" : {
-        "revision" : "67fa55813b9e7b3b9acee9c0ae501def28746d76",
-        "version" : "2.1.2"
       }
     },
     {

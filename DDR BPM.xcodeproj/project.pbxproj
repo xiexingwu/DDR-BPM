@@ -369,7 +369,6 @@
 			);
 			mainGroup = 3269E9D52820F8ED002C96CB;
 			packageReferences = (
-				32971DEA285C227800FD438E /* XCRemoteSwiftPackageReference "Zip" */,
 				3277AD762878B76700EFD47C /* XCRemoteSwiftPackageReference "SwiftUI-Introspect" */,
 				329EEE052D7B4B0400565B48 /* XCRemoteSwiftPackageReference "ZIPFoundation" */,
 			);
@@ -784,14 +783,6 @@
 			requirement = {
 				branch = master;
 				kind = branch;
-			};
-		};
-		32971DEA285C227800FD438E /* XCRemoteSwiftPackageReference "Zip" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/marmelroy/Zip";
-			requirement = {
-				kind = upToNextMinorVersion;
-				minimumVersion = 2.1.0;
 			};
 		};
 		329EEE052D7B4B0400565B48 /* XCRemoteSwiftPackageReference "ZIPFoundation" */ = {
